@@ -1,0 +1,44 @@
+{
+  "n_matters": 40,
+  "seed": 13,
+  "today": "2026-09-15",
+  "variant": "textdeadlines",
+  "profile": "v2",
+  "at_risk": [
+    {
+      "attorney": "Marcus Oyelaran",
+      "matters": [
+        "HV-2026-0017",
+        "HV-2026-0022",
+        "HV-2026-0037"
+      ]
+    },
+    {
+      "attorney": "Priya Raman",
+      "matters": [
+        "HV-2026-0010"
+      ]
+    },
+    {
+      "attorney": "Tomás Ibarra",
+      "matters": [
+        "HV-2026-0012"
+      ]
+    }
+  ],
+  "traps": {
+    "deadline_just_outside_window": 3,
+    "opposing_counsel_email_only": 2,
+    "non_billable_time_only": 2,
+    "client_email_just_outside_window": 2,
+    "closed_with_deadline": 1,
+    "non_litigation_with_deadline": 1,
+    "boundary_deadline_today": 1,
+    "boundary_deadline_last_day": 1,
+    "boundary_email_last_day": 1,
+    "boundary_billable_first_day": 1,
+    "deadline_continued_out": 2,
+    "deadline_continued_in": 2,
+    "deadline_vacated": 2
+  }
+}

@@ -1,0 +1,1413 @@
+{
+  "schema_version": 1,
+  "run_id": "base-tools-n120-s11-sonnet",
+  "arm": "tools",
+  "variant": "base",
+  "profile": "v2",
+  "n_matters": 120,
+  "rep": 1,
+  "stage": "p2-base",
+  "pot": "p2-base",
+  "model": "claude-sonnet-5-5",
+  "seed": 11,
+  "today": "2026-09-15",
+  "effort": "medium",
+  "latency_s": 0.15,
+  "started_at": "2026-09-30T03:33:23Z",
+  "finished_at": "2026-09-30T03:34:11Z",
+  "outcome": "answered",
+  "error": null,
+  "question": "Which active litigation matters are at risk of being neglected? A matter is at risk only if all of these are true:\n1. Its status is Open and its practice area is Litigation.\n2. It has a court deadline from 2026-09-15 to 2026-10-06, inclusive.\n3. No email dated 2026-09-01 to 2026-09-15, inclusive, was sent to or from any of the client's contacts. Emails with opposing counsel or anyone else don't count.\n4. No billable time was recorded on it dated 2026-09-01 to 2026-09-15, inclusive. Non-billable entries don't count.\nList the at-risk matters by display number (like HV-2026-0012), grouped by responsible attorney, and submit them with the submit_answer tool.",
+  "system_prompt": "Run 9742e2f3d2841d11. You are an assistant at Harbor & Vale LLP with read-only access to the firm's systems through the tools provided. Today is 2026-09-15. Use the tools to find the answer; do not guess. When you have the final answer, call submit_answer exactly once.",
+  "tools": [
+    {
+      "name": "matters_list",
+      "description": "List matters from the firm's practice management system (Clio Manage API, GET /api/v4/matters).\nReturns matter records with the client and its contacts, the responsible and originating attorney,\npractice area, status, open and close dates, court and case number, custom fields and billing\nsettings. Optional filters: status (Open, Pending or Closed) and practice_area (Litigation,\nCorporate, Employment, Intellectual Property or Real Estate). Results are paginated at 25 records\nper page; pass page=2, 3, ... until meta.paging.next is null. meta.records is the total number of\nmatching matters. Dates are YYYY-MM-DD."
+    },
+    {
+      "name": "docket_entries",
+      "description": "List court docket entries for one matter (CourtListener docket-entries API,\nGET /api/rest/v4/docket-entries). Takes the numeric matter id from matters_list (the id field, for\nexample 10001). Returns every entry filed on the matter's case: entry number, filing date\n(YYYY-MM-DD), description, document number and attachments. Entries that set a court deadline also\ncarry deadline_date (YYYY-MM-DD) and deadline_type. Only litigation matters have a docket; other\nmatters return an empty list. All entries come back in one response (no pagination)."
+    },
+    {
+      "name": "mail_search",
+      "description": "Search the firm's mailbox (Microsoft Graph, GET /v1.0/me/messages). Returns messages newest\nfirst with subject, body, sender, to and cc recipients, received time and flags. participants is a\nlist of email addresses; a message matches if any listed address appears in from, to or cc. after\nand before filter on the received date, both inclusive, in YYYY-MM-DD form. Omit all filters to\nlist every message. Results are paginated at 50 messages per page; while the response has an\n@odata.nextLink, call again with the next page number."
+    },
+    {
+      "name": "time_entries",
+      "description": "List time entries from the billing system (Clio Manage activities API, GET /api/v4/activities).\nEach entry has the date (YYYY-MM-DD), hours, hourly rate, total, note, the user who recorded it, the\nmatter it belongs to, and whether it is non_billable or already billed. Optional filters: matter_id\n(numeric matter id from matters_list) and after (YYYY-MM-DD, inclusive: only entries dated on or\nafter this day). Results are paginated at 100 entries per page; pass page=2, 3, ... until\nmeta.paging.next is null."
+    },
+    {
+      "name": "submit_answer",
+      "description": "Submit the final answer: the at-risk matters grouped by responsible attorney. Call exactly once."
+    }
+  ],
+  "turns": [
+    {
+      "index": 0,
+      "started_ms": 531,
+      "model_ms": 2047,
+      "retries": 0,
+      "retry_wait_ms": 0,
+      "tools_ms": 157,
+      "usage": {
+        "input_tokens": 4,
+        "cache_creation_input_tokens": 2376,
+        "cache_read_input_tokens": 0,
+        "output_tokens": 202
+      },
+      "context_tokens": 2380,
+      "cost_usd": 0.007968,
+      "stop_reason": "tool_use",
+      "text": "",
+      "tool_calls": [
+        {
+          "id": "toolu_016jracfGvvhUBoZLaSGyEou",
+          "name": "matters_list",
+          "input": {
+            "status": "Open",
+            "practice_area": "Litigation"
+          },
+          "is_error": false,
+          "duration_ms": 156,
+          "result_bytes": 32143,
+          "result_tokens_est": 9184,
+          "preview": "{\"data\":[{\"id\":10002,\"etag\":\"\\\"9510f125abae\\\"\",\"display_number\":\"HV-2026-0002\",\"description\":\"Lantern Dental Group v. Prescott Irvine: landlord-tenant dispute over a commercial lease guaranty.\",\"status\":\"Open\",\"location\":\"Seattle, WA\",\"client\":{\"id\":20002,\"name\":\"Lantern Dental Group\",\"type\":\"Company\",\"primary_email_address\":\"umar.ueda@lantern-dental-group.example\",\"contacts\":[{\"id\":30002,\"name\":\"Umar Ueda\",\"title\":\"Controller\",\"email\":\"umar.ueda@lantern-dental-group.example\",\"phone\":\"+1-555-635-2023\"},{\"id\":30003,\"name\":\"Camille Xu\",\"title\":\"Chief Executive Officer\",\"email\":\"camille.xu@lantern-dental-group.example\",\"phone\":\"+1-555-493-4652\"}]},\"practice_area\":{\"id\":400,\"name\":\"Litigation\"},\"responsible_attorney\":{\"id\":1005,\"name\":\"Elena Kowalczyk\",\"email\":\"elena.kowalczyk@harborvale.example\"},\"originating_attorney\":{\"id\":1006,\"name\":\"James Thornbury\",\"email\":\"james.thornbury@harborvale.example\"},\"open_date\":\"2025-03-22\",\"close_date\":null,\"billable\":true,\"billing_method\":\"contingency\",\"statute_of_limitations\":\"2027-12-14\",\"court\":{\"name\":\"U.S. District Court, Southern District of New York\",\"case_number\":\"1:26-cv-01133\"},\"custom_field_values\":[{\"field_name\":\"Conflict Check\",\"value\":\"Cleared\"},{\"field_name\":\"Fee Arrangement\",\"value\":\"Hourly with cap\"}],\"created_at\":\"2025-03-22T14:05:12Z\",\"updated_at\":\"2026-09-06T18:10:03Z\"},{\"id\":10004,\"etag\":\"\\\"405b551af9f0\\\"\",\"display_number\":\"HV-2026-0004\",\"description\":\"Yarrow Apparel v. Radcliffe Vance: commercial contract dispute over unp",
+          "api_calls": [
+            {
+              "source": "matters",
+              "endpoint": "GET /api/v4/matters",
+              "params": {
+                "status": "Open",
+                "practice_area": "Litigation",
+                "page": 1,
+                "page_size": 25
+              },
+              "started_ms": 0,
+              "duration_ms": 151,
+              "bytes": 32143
+            }
+          ]
+        },
+        {
+          "id": "toolu_01LbWZ4oxNQxzaQCta3hwFvR",
+          "name": "time_entries",
+          "input": {
+            "after": "2026-09-01"
+          },
+          "is_error": false,
+          "duration_ms": 156,
+          "result_bytes": 41488,
+          "result_tokens_est": 11854,
+          "preview": "{\"data\":[{\"id\":900670,\"etag\":\"\\\"f33c026e\\\"\",\"type\":\"TimeEntry\",\"date\":\"2026-09-15\",\"quantity_in_hours\":2.1,\"rounded_quantity_in_hours\":2.1,\"price\":495.0,\"total\":1039.5,\"note\":\"Internal strategy meeting\",\"non_billable\":false,\"billed\":false,\"matter\":{\"id\":10115,\"display_number\":\"HV-2026-0115\"},\"user\":{\"id\":1003,\"name\":\"Priya Raman\"},\"activity_description\":{\"name\":\"Drafting\"},\"updated_at\":\"2026-09-15T16:54:44Z\"},{\"id\":900637,\"etag\":\"\\\"e56e2765\\\"\",\"type\":\"TimeEntry\",\"date\":\"2026-09-15\",\"quantity_in_hours\":2.0,\"rounded_quantity_in_hours\":2.0,\"price\":610.0,\"total\":1220.0,\"note\":\"Contract redline review\",\"non_billable\":false,\"billed\":false,\"matter\":{\"id\":10109,\"display_number\":\"HV-2026-0109\"},\"user\":{\"id\":1005,\"name\":\"Elena Kowalczyk\"},\"activity_description\":{\"name\":\"Drafting\"},\"updated_at\":\"2026-09-15T22:46:23Z\"},{\"id\":900629,\"etag\":\"\\\"6be69ba2\\\"\",\"type\":\"TimeEntry\",\"date\":\"2026-09-15\",\"quantity_in_hours\":0.3,\"rounded_quantity_in_hours\":0.3,\"price\":575.0,\"total\":172.5,\"note\":\"Reviewed opposing production\",\"non_billable\":false,\"billed\":false,\"matter\":{\"id\":10107,\"display_number\":\"HV-2026-0107\"},\"user\":{\"id\":1006,\"name\":\"James Thornbury\"},\"activity_description\":{\"name\":\"Drafting\"},\"updated_at\":\"2026-09-15T23:43:52Z\"},{\"id\":900621,\"etag\":\"\\\"84a54570\\\"\",\"type\":\"TimeEntry\",\"date\":\"2026-09-15\",\"quantity_in_hours\":0.6,\"rounded_quantity_in_hours\":0.6,\"price\":425.0,\"total\":255.0,\"note\":\"Drafted response brief\",\"non_billable\":false,\"billed\":false,\"matter\":{\"id\":10106,\"display_number\":\"HV-202",
+          "api_calls": [
+            {
+              "source": "billing",
+              "endpoint": "GET /api/v4/activities",
+              "params": {
+                "after": "2026-09-01",
+                "page": 1,
+                "page_size": 100
+              },
+              "started_ms": 0,
+              "duration_ms": 151,
+              "bytes": 41488
+            }
+          ]
+        },
+        {
+          "id": "toolu_015htMaMp4KFTj94jgkS6EeA",
+          "name": "mail_search",
+          "input": {
+            "after": "2026-09-01",
+            "before": "2026-09-15"
+          },
+          "is_error": false,
+          "duration_ms": 157,
+          "result_bytes": 55952,
+          "result_tokens_est": 15986,
+          "preview": "{\"@odata.context\":\"https://graph.microsoft.com/v1.0/$metadata#users('me')/messages\",\"value\":[{\"id\":\"AAMkAGE85020a29b72c\",\"categories\":[],\"receivedDateTime\":\"2026-09-15T18:05:28Z\",\"sentDateTime\":\"2026-09-15T18:05:23Z\",\"hasAttachments\":true,\"internetMessageId\":\"<05add172@mail.harborvale.example>\",\"subject\":\"[HV-2026-0031] Document production\",\"bodyPreview\":\"Hi Zoe, Following up on our call, I have attached the latest draft and a short summary of open issues.\",\"importance\":\"normal\",\"parentFolderId\":\"AQMkAGEf1aa22\",\"conversationId\":\"AAQkAGE754a2f79de\",\"isRead\":true,\"webLink\":\"https://outlook.example/owa/?ItemID=AAMkAGE85020\",\"body\":{\"contentType\":\"html\",\"content\":\"<html><body><p>Hi Zoe,</p><p>Following up on our call, I have attached the latest draft and a short summary of open issues.</p></body></html>\"},\"sender\":{\"emailAddress\":{\"name\":\"Dana Whitfield\",\"address\":\"dana.whitfield@harborvale.example\"}},\"from\":{\"emailAddress\":{\"name\":\"Dana Whitfield\",\"address\":\"dana.whitfield@harborvale.example\"}},\"toRecipients\":[{\"emailAddress\":{\"name\":\"Zoe Quesada\",\"address\":\"zoe.quesada@falcon-robotics.example\"}},{\"emailAddress\":{\"name\":\"Evan Fontaine\",\"address\":\"evan.fontaine@falcon-robotics.example\"}}],\"ccRecipients\":[]},{\"id\":\"AAMkAGE724f9d1eecf3\",\"categories\":[],\"receivedDateTime\":\"2026-09-15T17:16:58Z\",\"sentDateTime\":\"2026-09-15T17:16:56Z\",\"hasAttachments\":false,\"internetMessageId\":\"<b5f802fd@mail.harborvale.example>\",\"subject\":\"FW: [HV-2026-0077] Exhibit list\",\"bodyPreview\":\"Hi James, We a",
+          "api_calls": [
+            {
+              "source": "mail",
+              "endpoint": "GET /v1.0/me/messages",
+              "params": {
+                "after": "2026-09-01",
+                "before": "2026-09-15",
+                "page": 1,
+                "page_size": 50
+              },
+              "started_ms": 0,
+              "duration_ms": 151,
+              "bytes": 55952
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "started_ms": 2736,
+      "model_ms": 5355,
+      "retries": 0,
+      "retry_wait_ms": 0,
+      "tools_ms": 160,
+      "usage": {
+        "input_tokens": 2,
+        "cache_creation_input_tokens": 62009,
+        "cache_read_input_tokens": 2376,
+        "output_tokens": 780
+      },
+      "context_tokens": 64387,
+      "cost_usd": 0.163302,
+      "stop_reason": "tool_use",
+      "text": "",
+      "tool_calls": [
+        {
+          "id": "toolu_012ZvHF6kZNLrNzg88vSsyXx",
+          "name": "matters_list",
+          "input": {
+            "status": "Open",
+            "practice_area": "Litigation",
+            "page": 2
+          },
+          "is_error": false,
+          "duration_ms": 158,
+          "result_bytes": 32779,
+          "result_tokens_est": 9365,
+          "preview": "{\"data\":[{\"id\":10033,\"etag\":\"\\\"30794c6940f9\\\"\",\"display_number\":\"HV-2026-0033\",\"description\":\"Foxglove Dental Group v. Fairbanks Sutton: landlord-tenant dispute over a commercial lease guaranty.\",\"status\":\"Open\",\"location\":\"New York, NY\",\"client\":{\"id\":20033,\"name\":\"Foxglove Dental Group\",\"type\":\"Company\",\"primary_email_address\":\"brendan.esposito@foxglove-dental-group.example\",\"contacts\":[{\"id\":30056,\"name\":\"Brendan Esposito\",\"title\":\"Chief Executive Officer\",\"email\":\"brendan.esposito@foxglove-dental-group.example\",\"phone\":\"+1-555-140-4184\"},{\"id\":30057,\"name\":\"Nadia Khan\",\"title\":\"Head of Compliance\",\"email\":\"nadia.khan@foxglove-dental-group.example\",\"phone\":\"+1-555-900-6319\"}]},\"practice_area\":{\"id\":400,\"name\":\"Litigation\"},\"responsible_attorney\":{\"id\":1005,\"name\":\"Elena Kowalczyk\",\"email\":\"elena.kowalczyk@harborvale.example\"},\"originating_attorney\":{\"id\":1006,\"name\":\"James Thornbury\",\"email\":\"james.thornbury@harborvale.example\"},\"open_date\":\"2025-10-13\",\"close_date\":null,\"billable\":true,\"billing_method\":\"contingency\",\"statute_of_limitations\":\"2028-01-14\",\"court\":{\"name\":\"U.S. District Court, Southern District of New York\",\"case_number\":\"1:26-cv-01184\"},\"custom_field_values\":[{\"field_name\":\"Fee Arrangement\",\"value\":\"Hourly with cap\"},{\"field_name\":\"Conflict Check\",\"value\":\"Cleared\"}],\"created_at\":\"2025-10-13T14:05:12Z\",\"updated_at\":\"2026-09-11T09:01:03Z\"},{\"id\":10035,\"etag\":\"\\\"1149b669df55\\\"\",\"display_number\":\"HV-2026-0035\",\"description\":\"Falcon Foods defense of a wage and ",
+          "api_calls": [
+            {
+              "source": "matters",
+              "endpoint": "GET /api/v4/matters",
+              "params": {
+                "status": "Open",
+                "practice_area": "Litigation",
+                "page": 2,
+                "page_size": 25
+              },
+              "started_ms": 0,
+              "duration_ms": 151,
+              "bytes": 32779
+            }
+          ]
+        },
+        {
+          "id": "toolu_019i8W4GG2GRXW2LB7PVZWN5",
+          "name": "matters_list",
+          "input": {
+            "status": "Open",
+            "practice_area": "Litigation",
+            "page": 3
+          },
+          "is_error": false,
+          "duration_ms": 158,
+          "result_bytes": 33403,
+          "result_tokens_est": 9544,
+          "preview": "{\"data\":[{\"id\":10068,\"etag\":\"\\\"23b9b46bb71c\\\"\",\"display_number\":\"HV-2026-0068\",\"description\":\"Alder Dental Group v. Garrity Okafor: commercial contract dispute over unpaid invoices and breach of warranty.\",\"status\":\"Open\",\"location\":\"New York, NY\",\"client\":{\"id\":20068,\"name\":\"Alder Dental Group\",\"type\":\"Company\",\"primary_email_address\":\"zoe.gupta@alder-dental-group.example\",\"contacts\":[{\"id\":30125,\"name\":\"Zoe Gupta\",\"title\":\"Director of HR\",\"email\":\"zoe.gupta@alder-dental-group.example\",\"phone\":\"+1-555-860-6287\"}]},\"practice_area\":{\"id\":400,\"name\":\"Litigation\"},\"responsible_attorney\":{\"id\":1002,\"name\":\"Marcus Oyelaran\",\"email\":\"marcus.oyelaran@harborvale.example\"},\"originating_attorney\":{\"id\":1005,\"name\":\"Elena Kowalczyk\",\"email\":\"elena.kowalczyk@harborvale.example\"},\"open_date\":\"2025-07-09\",\"close_date\":null,\"billable\":true,\"billing_method\":\"flat\",\"statute_of_limitations\":\"2028-06-28\",\"court\":{\"name\":\"U.S. District Court, Northern District of Illinois\",\"case_number\":\"1:26-cv-08417\"},\"custom_field_values\":[{\"field_name\":\"Insurance Carrier Notified\",\"value\":\"Yes\"},{\"field_name\":\"Referral Source\",\"value\":\"Partner network\"}],\"created_at\":\"2025-07-09T14:05:12Z\",\"updated_at\":\"2026-09-04T08:38:03Z\"},{\"id\":10070,\"etag\":\"\\\"7854ef0b96fd\\\"\",\"display_number\":\"HV-2026-0070\",\"description\":\"Harlow Analytics defense of a wage and hour class action filed against the company.\",\"status\":\"Open\",\"location\":\"Seattle, WA\",\"client\":{\"id\":20070,\"name\":\"Harlow Analytics\",\"type\":\"Company\",\"primary_ema",
+          "api_calls": [
+            {
+              "source": "matters",
+              "endpoint": "GET /api/v4/matters",
+              "params": {
+                "status": "Open",
+                "practice_area": "Litigation",
+                "page": 3,
+                "page_size": 25
+              },
+              "started_ms": 0,
+              "duration_ms": 151,
+              "bytes": 33403
+            }
+          ]
+        },
+        {
+          "id": "toolu_015BgJ9FCZ1GxwkD89nEzU1D",
+          "name": "matters_list",
+          "input": {
+            "status": "Open",
+            "practice_area": "Litigation",
+            "page": 4
+          },
+          "is_error": false,
+          "duration_ms": 158,
+          "result_bytes": 23750,
+          "result_tokens_est": 6786,
+          "preview": "{\"data\":[{\"id\":10099,\"etag\":\"\\\"eac97ef0dddc\\\"\",\"display_number\":\"HV-2026-0099\",\"description\":\"Granite Energy defense of a product liability suit arising from a recalled component.\",\"status\":\"Open\",\"location\":\"New York, NY\",\"client\":{\"id\":20099,\"name\":\"Granite Energy\",\"type\":\"Company\",\"primary_email_address\":\"brendan.walsh@granite-energy.example\",\"contacts\":[{\"id\":30186,\"name\":\"Brendan Walsh\",\"title\":\"Controller\",\"email\":\"brendan.walsh@granite-energy.example\",\"phone\":\"+1-555-577-1666\"},{\"id\":30187,\"name\":\"Umar Okonkwo\",\"title\":\"Head of Compliance\",\"email\":\"umar.okonkwo@granite-energy.example\",\"phone\":\"+1-555-516-1282\"},{\"id\":30188,\"name\":\"Umar Tanaka\",\"title\":\"Managing Director\",\"email\":\"umar.tanaka@granite-energy.example\",\"phone\":\"+1-555-789-8332\"}]},\"practice_area\":{\"id\":400,\"name\":\"Litigation\"},\"responsible_attorney\":{\"id\":1003,\"name\":\"Priya Raman\",\"email\":\"priya.raman@harborvale.example\"},\"originating_attorney\":{\"id\":1005,\"name\":\"Elena Kowalczyk\",\"email\":\"elena.kowalczyk@harborvale.example\"},\"open_date\":\"2025-10-19\",\"close_date\":null,\"billable\":true,\"billing_method\":\"flat\",\"statute_of_limitations\":\"2027-07-13\",\"court\":{\"name\":\"U.S. District Court, Southern District of New York\",\"case_number\":\"1:26-cv-03360\"},\"custom_field_values\":[{\"field_name\":\"Conflict Check\",\"value\":\"Cleared with waiver\"},{\"field_name\":\"Referral Source\",\"value\":\"Existing client\"}],\"created_at\":\"2025-10-19T14:05:12Z\",\"updated_at\":\"2026-09-14T11:44:03Z\"},{\"id\":10100,\"etag\":\"\\\"4713be0d19e9\\\"\",\"display_numb",
+          "api_calls": [
+            {
+              "source": "matters",
+              "endpoint": "GET /api/v4/matters",
+              "params": {
+                "status": "Open",
+                "practice_area": "Litigation",
+                "page": 4,
+                "page_size": 25
+              },
+              "started_ms": 0,
+              "duration_ms": 152,
+              "bytes": 23750
+            }
+          ]
+        },
+        {
+          "id": "toolu_01MwEEWAQvzgCpzmo9mg9thc",
+          "name": "time_entries",
+          "input": {
+            "after": "2026-09-01",
+            "page": 2
+          },
+          "is_error": false,
+          "duration_ms": 158,
+          "result_bytes": 15346,
+          "result_tokens_est": 4385,
+          "preview": "{\"data\":[{\"id\":900442,\"etag\":\"\\\"becec41c\\\"\",\"type\":\"TimeEntry\",\"date\":\"2026-09-05\",\"quantity_in_hours\":0.5,\"rounded_quantity_in_hours\":0.5,\"price\":495.0,\"total\":247.5,\"note\":\"Client call re open items\",\"non_billable\":false,\"billed\":false,\"matter\":{\"id\":10074,\"display_number\":\"HV-2026-0074\"},\"user\":{\"id\":1003,\"name\":\"Priya Raman\"},\"activity_description\":{\"name\":\"Legal research\"},\"updated_at\":\"2026-09-05T19:26:56Z\"},{\"id\":900309,\"etag\":\"\\\"b3efeeae\\\"\",\"type\":\"TimeEntry\",\"date\":\"2026-09-05\",\"quantity_in_hours\":2.0,\"rounded_quantity_in_hours\":2.0,\"price\":395.0,\"total\":790.0,\"note\":\"Drafted response brief\",\"non_billable\":false,\"billed\":false,\"matter\":{\"id\":10053,\"display_number\":\"HV-2026-0053\"},\"user\":{\"id\":1004,\"name\":\"Tomás Ibarra\"},\"activity_description\":{\"name\":\"Drafting\"},\"updated_at\":\"2026-09-05T19:42:04Z\"},{\"id\":900286,\"etag\":\"\\\"6ec68265\\\"\",\"type\":\"TimeEntry\",\"date\":\"2026-09-05\",\"quantity_in_hours\":2.6,\"rounded_quantity_in_hours\":2.6,\"price\":575.0,\"total\":1495.0,\"note\":\"Contract redline review\",\"non_billable\":false,\"billed\":false,\"matter\":{\"id\":10050,\"display_number\":\"HV-2026-0050\"},\"user\":{\"id\":1006,\"name\":\"James Thornbury\"},\"activity_description\":{\"name\":\"Legal research\"},\"updated_at\":\"2026-09-05T16:14:27Z\"},{\"id\":900207,\"etag\":\"\\\"38ac4fed\\\"\",\"type\":\"TimeEntry\",\"date\":\"2026-09-05\",\"quantity_in_hours\":0.3,\"rounded_quantity_in_hours\":0.3,\"price\":395.0,\"total\":118.5,\"note\":\"Drafted response brief\",\"non_billable\":false,\"billed\":false,\"matter\":{\"id\":10038,\"display_number\":\"HV-2",
+          "api_calls": [
+            {
+              "source": "billing",
+              "endpoint": "GET /api/v4/activities",
+              "params": {
+                "after": "2026-09-01",
+                "page": 2,
+                "page_size": 100
+              },
+              "started_ms": 0,
+              "duration_ms": 152,
+              "bytes": 15346
+            }
+          ]
+        },
+        {
+          "id": "toolu_014Hdhez67NYMHHc39W9joTG",
+          "name": "mail_search",
+          "input": {
+            "after": "2026-09-01",
+            "before": "2026-09-15",
+            "page": 2
+          },
+          "is_error": false,
+          "duration_ms": 158,
+          "result_bytes": 57829,
+          "result_tokens_est": 16523,
+          "preview": "{\"@odata.context\":\"https://graph.microsoft.com/v1.0/$metadata#users('me')/messages\",\"value\":[{\"id\":\"AAMkAGEe492b0ea199b\",\"categories\":[],\"receivedDateTime\":\"2026-09-11T09:33:51Z\",\"sentDateTime\":\"2026-09-11T09:33:47Z\",\"hasAttachments\":false,\"internetMessageId\":\"<9bfa65d5@mail.harborvale.example>\",\"subject\":\"Reminder: timesheets due Friday\",\"bodyPreview\":\"Please submit all time entries for the current period by end of day Friday so that invoices can go out on schedule. Regards, Harbor & Vale Administration\",\"importance\":\"low\",\"parentFolderId\":\"AQMkAGEff8681\",\"conversationId\":\"AAQkAGEa0f68be91b\",\"isRead\":true,\"webLink\":\"https://outlook.example/owa/?ItemID=AAMkAGEe492b\",\"body\":{\"contentType\":\"html\",\"content\":\"<html><body><p>Please submit all time entries for the current period by end of day Friday so that invoices can go out on schedule.</p><p>Regards,<br>Harbor &amp; Vale Administration</p></body></html>\"},\"sender\":{\"emailAddress\":{\"name\":\"Accounting Desk\",\"address\":\"accounting@harborvale.example\"}},\"from\":{\"emailAddress\":{\"name\":\"Accounting Desk\",\"address\":\"accounting@harborvale.example\"}},\"toRecipients\":[{\"emailAddress\":{\"name\":\"Marcus Oyelaran\",\"address\":\"marcus.oyelaran@harborvale.example\"}},{\"emailAddress\":{\"name\":\"James Thornbury\",\"address\":\"james.thornbury@harborvale.example\"}},{\"emailAddress\":{\"name\":\"Tomás Ibarra\",\"address\":\"tomas.ibarra@harborvale.example\"}}],\"ccRecipients\":[]},{\"id\":\"AAMkAGE970e57f310ca\",\"categories\":[],\"receivedDateTime\":\"2026-09-11T08:08:09Z\",\"sentD",
+          "api_calls": [
+            {
+              "source": "mail",
+              "endpoint": "GET /v1.0/me/messages",
+              "params": {
+                "after": "2026-09-01",
+                "before": "2026-09-15",
+                "page": 2,
+                "page_size": 50
+              },
+              "started_ms": 0,
+              "duration_ms": 152,
+              "bytes": 57829
+            }
+          ]
+        },
+        {
+          "id": "toolu_01N1R94ghqFZNi3s65JDXKi8",
+          "name": "mail_search",
+          "input": {
+            "after": "2026-09-01",
+            "before": "2026-09-15",
+            "page": 3
+          },
+          "is_error": false,
+          "duration_ms": 159,
+          "result_bytes": 48758,
+          "result_tokens_est": 13931,
+          "preview": "{\"@odata.context\":\"https://graph.microsoft.com/v1.0/$metadata#users('me')/messages\",\"value\":[{\"id\":\"AAMkAGEb37f7ebf8e8c\",\"categories\":[],\"receivedDateTime\":\"2026-09-06T16:04:52Z\",\"sentDateTime\":\"2026-09-06T16:04:43Z\",\"hasAttachments\":false,\"internetMessageId\":\"<297b8d92@mail.harborvale.example>\",\"subject\":\"[HV-2026-0001] Document production\",\"bodyPreview\":\"Hi Tomás, We are comfortable with the approach you outlined, subject to a quick call to align on risk.\",\"importance\":\"high\",\"parentFolderId\":\"AQMkAGE3252f7\",\"conversationId\":\"AAQkAGE7025028f74\",\"isRead\":true,\"webLink\":\"https://outlook.example/owa/?ItemID=AAMkAGEb37f7\",\"body\":{\"contentType\":\"html\",\"content\":\"<html><body><p>Hi Tomás,</p><p>We are comfortable with the approach you outlined, subject to a quick call to align on risk.</p></body></html>\"},\"sender\":{\"emailAddress\":{\"name\":\"Kofi Ueda\",\"address\":\"kofi.ueda@brightwater-foods.example\"}},\"from\":{\"emailAddress\":{\"name\":\"Kofi Ueda\",\"address\":\"kofi.ueda@brightwater-foods.example\"}},\"toRecipients\":[{\"emailAddress\":{\"name\":\"Tomás Ibarra\",\"address\":\"tomas.ibarra@harborvale.example\"}}],\"ccRecipients\":[]},{\"id\":\"AAMkAGE8024f9fe5c9e\",\"categories\":[],\"receivedDateTime\":\"2026-09-06T14:00:09Z\",\"sentDateTime\":\"2026-09-06T14:00:02Z\",\"hasAttachments\":false,\"internetMessageId\":\"<f2c78fd3@mail.harborvale.example>\",\"subject\":\"Weekly legal news digest\",\"bodyPreview\":\"Top stories this week: appellate rulings on arbitration clauses, new state privacy statutes, and court rule changes. Regard",
+          "api_calls": [
+            {
+              "source": "mail",
+              "endpoint": "GET /v1.0/me/messages",
+              "params": {
+                "after": "2026-09-01",
+                "before": "2026-09-15",
+                "page": 3,
+                "page_size": 50
+              },
+              "started_ms": 0,
+              "duration_ms": 152,
+              "bytes": 48758
+            }
+          ]
+        },
+        {
+          "id": "toolu_01Pd2FXWALEASdWyDtmrnWgm",
+          "name": "mail_search",
+          "input": {
+            "after": "2026-09-01",
+            "before": "2026-09-15",
+            "page": 4
+          },
+          "is_error": false,
+          "duration_ms": 159,
+          "result_bytes": 95,
+          "result_tokens_est": 27,
+          "preview": "{\"@odata.context\":\"https://graph.microsoft.com/v1.0/$metadata#users('me')/messages\",\"value\":[]}",
+          "api_calls": [
+            {
+              "source": "mail",
+              "endpoint": "GET /v1.0/me/messages",
+              "params": {
+                "after": "2026-09-01",
+                "before": "2026-09-15",
+                "page": 4,
+                "page_size": 50
+              },
+              "started_ms": 0,
+              "duration_ms": 152,
+              "bytes": 95
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "started_ms": 8254,
+      "model_ms": 27469,
+      "retries": 0,
+      "retry_wait_ms": 0,
+      "tools_ms": 168,
+      "usage": {
+        "input_tokens": 2,
+        "cache_creation_input_tokens": 99594,
+        "cache_read_input_tokens": 64385,
+        "output_tokens": 4858
+      },
+      "context_tokens": 163981,
+      "cost_usd": 0.310446,
+      "stop_reason": "tool_use",
+      "text": "",
+      "tool_calls": [
+        {
+          "id": "toolu_01Pg5VTrtaKK2Lrm3LxoVUHp",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10006
+          },
+          "is_error": false,
+          "duration_ms": 154,
+          "result_bytes": 1835,
+          "result_tokens_est": 524,
+          "preview": "{\"count\":4,\"next\":null,\"results\":[{\"id\":500014,\"docket_id\":7010006,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-08016\",\"entry_number\":1,\"date_filed\":\"2026-05-23\",\"description\":\"NOTICE of Deposition of a corporate designee, to be taken remotely. Court reporter has been retained.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010006/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000140,\"is_available\":false,\"page_count\":9}]},{\"id\":500015,\"docket_id\":7010006,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-08016\",\"entry_number\":2,\"date_filed\":\"2026-06-03\",\"description\":\"MOTION for Leave to File Excess Pages in connection with dispositive motions. Opposition, if any, is due per local rules.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010006/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000150,\"is_available\":false,\"page_count\":9}]},{\"id\":500016,\"docket_id\":7010006,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-08016\",\"entry_number\":3,\"date_filed\":\"2026-06-22\",\"description\":\"REPLY BRIEF filed by counsel for Yarrow Freight. Per the court's order, the corresponding deadline is set for September 15, 2026.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010006/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000160,\"is_available\":false,\"page_count\":17}],\"deadline_date\":\"2026-09-15\",\"deadline_type\":\"Reply brief due\"},{\"id\":500017,\"docket_id\":7010006,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-08016\",\"entry_number\":4,\"date_filed\":\"2026-07-31\",\"description\":\"DEPOSITION OF CORPORATE REPRESENTATIVE filed by counsel ",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10006
+              },
+              "started_ms": 0,
+              "duration_ms": 151,
+              "bytes": 1835
+            }
+          ]
+        },
+        {
+          "id": "toolu_013BKVCBJusQZsTd97Z1Ed3c",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10010
+          },
+          "is_error": false,
+          "duration_ms": 154,
+          "result_bytes": 2267,
+          "result_tokens_est": 648,
+          "preview": "{\"count\":5,\"next\":null,\"results\":[{\"id\":500030,\"docket_id\":7010010,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-08337\",\"entry_number\":1,\"date_filed\":\"2026-05-26\",\"description\":\"REPLY BRIEF filed by counsel for Pryce Norcross. Per the court's order, the corresponding deadline is set for October 02, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010010/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000300,\"is_available\":false,\"page_count\":26}],\"deadline_date\":\"2026-10-02\",\"deadline_type\":\"Reply brief due\"},{\"id\":500031,\"docket_id\":7010010,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-08337\",\"entry_number\":2,\"date_filed\":\"2026-07-29\",\"description\":\"CERTIFICATE OF SERVICE re Plaintiff's First Set of Requests for Production. Served by email on all counsel of record.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010010/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000310,\"is_available\":false,\"page_count\":34}]},{\"id\":500032,\"docket_id\":7010010,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-08337\",\"entry_number\":3,\"date_filed\":\"2026-08-04\",\"description\":\"REPLY BRIEF filed by counsel for Yarrow Holdings. Per the court's order, the corresponding deadline is set for September 02, 2026.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010010/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000320,\"is_available\":false,\"page_count\":32}],\"deadline_date\":\"2026-09-02\",\"deadline_type\":\"Reply brief due\"},{\"id\":500033,\"docket_id\":7010010,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-08337\",\"entry_number\":4,\"date",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10010
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 2267
+            }
+          ]
+        },
+        {
+          "id": "toolu_017uWjk8zpS3eskC6dj7KcUN",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10016
+          },
+          "is_error": false,
+          "duration_ms": 155,
+          "result_bytes": 2004,
+          "result_tokens_est": 573,
+          "preview": "{\"count\":4,\"next\":null,\"results\":[{\"id\":500048,\"docket_id\":7010016,\"court\":\"CCCCI\",\"case_number\":\"1:26-cv-03298\",\"entry_number\":1,\"date_filed\":\"2026-06-12\",\"description\":\"MOTION for Leave to File Excess Pages in connection with dispositive motions. Opposition, if any, is due per local rules.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010016/1/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Exhibit A\"}],\"recap_documents\":[{\"id\":5000480,\"is_available\":false,\"page_count\":7}]},{\"id\":500049,\"docket_id\":7010016,\"court\":\"CCCCI\",\"case_number\":\"1:26-cv-03298\",\"entry_number\":2,\"date_filed\":\"2026-07-20\",\"description\":\"REPLY BRIEF filed by counsel for Ashby Trevino. Per the court's order, the corresponding deadline is set for October 02, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010016/2/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Declaration\"}],\"recap_documents\":[{\"id\":5000490,\"is_available\":false,\"page_count\":1}],\"deadline_date\":\"2026-10-02\",\"deadline_type\":\"Reply brief due\"},{\"id\":500050,\"docket_id\":7010016,\"court\":\"CCCCI\",\"case_number\":\"1:26-cv-03298\",\"entry_number\":3,\"date_filed\":\"2026-07-31\",\"description\":\"DEPOSITION OF CORPORATE REPRESENTATIVE filed by counsel for Driftwood Logistics. Per the court's order, the corresponding deadline is set for September 28, 2026.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010016/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000500,\"is_available\":false,\"page_count\":8}],\"deadline_date\":\"2026-09-28\",\"deadline",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10016
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 2004
+            }
+          ]
+        },
+        {
+          "id": "toolu_013uZRVQusXYayykhfJqnjZ6",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10018
+          },
+          "is_error": false,
+          "duration_ms": 155,
+          "result_bytes": 2424,
+          "result_tokens_est": 693,
+          "preview": "{\"count\":5,\"next\":null,\"results\":[{\"id\":500052,\"docket_id\":7010018,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-00621\",\"entry_number\":1,\"date_filed\":\"2026-06-11\",\"description\":\"RESPONSE TO MOTION TO COMPEL filed by counsel for Wexford Biotech. Per the court's order, the corresponding deadline is set for September 16, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010018/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000520,\"is_available\":false,\"page_count\":30}],\"deadline_date\":\"2026-09-16\",\"deadline_type\":\"Response to motion to compel due\"},{\"id\":500053,\"docket_id\":7010018,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-00621\",\"entry_number\":2,\"date_filed\":\"2026-07-15\",\"description\":\"MOTION for Leave to File Excess Pages in connection with dispositive motions. Opposition, if any, is due per local rules.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010018/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000530,\"is_available\":false,\"page_count\":24}]},{\"id\":500054,\"docket_id\":7010018,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-00621\",\"entry_number\":3,\"date_filed\":\"2026-07-22\",\"description\":\"MINUTE ENTRY for proceedings held before the presiding judge. Status conference held; counsel for both sides present.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010018/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000540,\"is_available\":false,\"page_count\":16}]},{\"id\":500055,\"docket_id\":7010018,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-00621\",\"entry_number\":4,\"date_filed\":\"2026-08-02\",\"description\":\"CLO",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10018
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 2424
+            }
+          ]
+        },
+        {
+          "id": "toolu_014yhJVmmY6vLiDeTrNGYUvM",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10020
+          },
+          "is_error": false,
+          "duration_ms": 157,
+          "result_bytes": 1904,
+          "result_tokens_est": 544,
+          "preview": "{\"count\":4,\"next\":null,\"results\":[{\"id\":500060,\"docket_id\":7010020,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-08715\",\"entry_number\":1,\"date_filed\":\"2026-05-25\",\"description\":\"EXPERT DISCLOSURE filed by counsel for Bluefin Energy. Per the court's order, the corresponding deadline is set for November 05, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010020/1/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Proposed Order\"}],\"recap_documents\":[{\"id\":5000600,\"is_available\":false,\"page_count\":35}],\"deadline_date\":\"2026-11-05\",\"deadline_type\":\"Expert disclosure deadline\"},{\"id\":500061,\"docket_id\":7010020,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-08715\",\"entry_number\":2,\"date_filed\":\"2026-06-17\",\"description\":\"ANSWER TO AMENDED COMPLAINT filed by counsel for Mercer Okafor. Per the court's order, the corresponding deadline is set for September 17, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010020/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000610,\"is_available\":false,\"page_count\":9}],\"deadline_date\":\"2026-09-17\",\"deadline_type\":\"Answer to amended complaint due\"},{\"id\":500062,\"docket_id\":7010020,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-08715\",\"entry_number\":3,\"date_filed\":\"2026-08-20\",\"description\":\"ORDER granting in part the parties' joint request to modify the case schedule. All other dates remain in effect.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010020/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000620,\"is_available\":false,\"page_count\":26}]},{\"id\":",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10020
+              },
+              "started_ms": 0,
+              "duration_ms": 151,
+              "bytes": 1904
+            }
+          ]
+        },
+        {
+          "id": "toolu_01WvT6NTmSkLYAGEuNuwXy3f",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10023
+          },
+          "is_error": false,
+          "duration_ms": 157,
+          "result_bytes": 3102,
+          "result_tokens_est": 886,
+          "preview": "{\"count\":7,\"next\":null,\"results\":[{\"id\":500067,\"docket_id\":7010023,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-02447\",\"entry_number\":1,\"date_filed\":\"2026-05-28\",\"description\":\"LETTER from counsel re discovery dispute and request for an informal conference with the court.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010023/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000670,\"is_available\":false,\"page_count\":30}]},{\"id\":500068,\"docket_id\":7010023,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-02447\",\"entry_number\":2,\"date_filed\":\"2026-06-06\",\"description\":\"ORDER granting in part the parties' joint request to modify the case schedule. All other dates remain in effect.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010023/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000680,\"is_available\":false,\"page_count\":1}]},{\"id\":500069,\"docket_id\":7010023,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-02447\",\"entry_number\":3,\"date_filed\":\"2026-07-23\",\"description\":\"LETTER from counsel re discovery dispute and request for an informal conference with the court.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010023/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000690,\"is_available\":false,\"page_count\":16}]},{\"id\":500070,\"docket_id\":7010023,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-02447\",\"entry_number\":4,\"date_filed\":\"2026-07-29\",\"description\":\"ORDER setting Initial Scheduling Conference. Parties shall submit a joint status report seven days before the conference.\",\"document_number\":\"4\",\"absolute_url\":\"/docke",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10023
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 3102
+            }
+          ]
+        },
+        {
+          "id": "toolu_012PUzygVPw21cWV1M5MreSn",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10024
+          },
+          "is_error": false,
+          "duration_ms": 158,
+          "result_bytes": 1313,
+          "result_tokens_est": 375,
+          "preview": "{\"count\":3,\"next\":null,\"results\":[{\"id\":500074,\"docket_id\":7010024,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-00338\",\"entry_number\":1,\"date_filed\":\"2026-06-08\",\"description\":\"MOTION IN LIMINE filed by counsel for Meridian Hospitality. Per the court's order, the corresponding deadline is set for October 07, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010024/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000740,\"is_available\":false,\"page_count\":11}],\"deadline_date\":\"2026-10-07\",\"deadline_type\":\"Motion in limine deadline\"},{\"id\":500075,\"docket_id\":7010024,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-00338\",\"entry_number\":2,\"date_filed\":\"2026-06-19\",\"description\":\"ORDER setting Initial Scheduling Conference. Parties shall submit a joint status report seven days before the conference.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010024/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000750,\"is_available\":false,\"page_count\":24}]},{\"id\":500076,\"docket_id\":7010024,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-00338\",\"entry_number\":3,\"date_filed\":\"2026-08-18\",\"description\":\"NOTICE of Appearance filed by counsel for Defendant. Certificate of service attached.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010024/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000760,\"is_available\":false,\"page_count\":15}]}]}",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10024
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 1313
+            }
+          ]
+        },
+        {
+          "id": "toolu_01VFoDRZ5qfn2xyBBqn2Ekn1",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10025
+          },
+          "is_error": false,
+          "duration_ms": 158,
+          "result_bytes": 3106,
+          "result_tokens_est": 887,
+          "preview": "{\"count\":7,\"next\":null,\"results\":[{\"id\":500077,\"docket_id\":7010025,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-05369\",\"entry_number\":1,\"date_filed\":\"2026-05-22\",\"description\":\"ORDER setting Initial Scheduling Conference. Parties shall submit a joint status report seven days before the conference.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010025/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000770,\"is_available\":false,\"page_count\":19}]},{\"id\":500078,\"docket_id\":7010025,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-05369\",\"entry_number\":2,\"date_filed\":\"2026-06-12\",\"description\":\"ORDER granting in part the parties' joint request to modify the case schedule. All other dates remain in effect.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010025/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000780,\"is_available\":false,\"page_count\":36}]},{\"id\":500079,\"docket_id\":7010025,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-05369\",\"entry_number\":3,\"date_filed\":\"2026-06-16\",\"description\":\"EXPERT DISCLOSURE filed by counsel for Radcliffe Penhale. Per the court's order, the corresponding deadline is set for October 03, 2026.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010025/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000790,\"is_available\":false,\"page_count\":32}],\"deadline_date\":\"2026-10-03\",\"deadline_type\":\"Expert disclosure deadline\"},{\"id\":500080,\"docket_id\":7010025,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-05369\",\"entry_number\":4,\"date_filed\":\"2026-06-16\",\"description\":\"NOTICE of Deposition of a",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10025
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 3106
+            }
+          ]
+        },
+        {
+          "id": "toolu_0152RwiRBDxy4ZBDM5LJBMA6",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10026
+          },
+          "is_error": false,
+          "duration_ms": 158,
+          "result_bytes": 3482,
+          "result_tokens_est": 995,
+          "preview": "{\"count\":8,\"next\":null,\"results\":[{\"id\":500084,\"docket_id\":7010026,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-01442\",\"entry_number\":1,\"date_filed\":\"2026-05-22\",\"description\":\"NOTICE of Appearance filed by counsel for Defendant. Certificate of service attached.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010026/1/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Exhibit A\"}],\"recap_documents\":[{\"id\":5000840,\"is_available\":false,\"page_count\":13}]},{\"id\":500085,\"docket_id\":7010026,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-01442\",\"entry_number\":2,\"date_filed\":\"2026-05-24\",\"description\":\"DEPOSITION OF CORPORATE REPRESENTATIVE filed by counsel for Lakeshore Energy. Per the court's order, the corresponding deadline is set for October 15, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010026/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000850,\"is_available\":false,\"page_count\":27}],\"deadline_date\":\"2026-10-15\",\"deadline_type\":\"Deposition of corporate representative\"},{\"id\":500086,\"docket_id\":7010026,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-01442\",\"entry_number\":3,\"date_filed\":\"2026-06-27\",\"description\":\"NOTICE of Deposition of a corporate designee, to be taken remotely. Court reporter has been retained.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010026/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000860,\"is_available\":false,\"page_count\":22}]},{\"id\":500087,\"docket_id\":7010026,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-01442\",\"entry_number\":4,\"date_filed\":\"2026-06-27",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10026
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 3482
+            }
+          ]
+        },
+        {
+          "id": "toolu_01FyLW2PDcmtJE5FibAJzVKb",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10027
+          },
+          "is_error": false,
+          "duration_ms": 158,
+          "result_bytes": 1999,
+          "result_tokens_est": 571,
+          "preview": "{\"count\":4,\"next\":null,\"results\":[{\"id\":500092,\"docket_id\":7010027,\"court\":\"UDCWDW\",\"case_number\":\"2:26-cv-01931\",\"entry_number\":1,\"date_filed\":\"2026-06-26\",\"description\":\"CLOSE OF FACT DISCOVERY filed by counsel for Sterling Norcross. Per the court's order, the corresponding deadline is set for September 28, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010027/1/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Declaration\"}],\"recap_documents\":[{\"id\":5000920,\"is_available\":false,\"page_count\":27}],\"deadline_date\":\"2026-09-28\",\"deadline_type\":\"Close of fact discovery\"},{\"id\":500093,\"docket_id\":7010027,\"court\":\"UDCWDW\",\"case_number\":\"2:26-cv-01931\",\"entry_number\":2,\"date_filed\":\"2026-07-07\",\"description\":\"MEDIATION STATEMENT filed by counsel for Quarry Holdings. Per the court's order, the corresponding deadline is set for November 12, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010027/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000930,\"is_available\":false,\"page_count\":33}],\"deadline_date\":\"2026-11-12\",\"deadline_type\":\"Mediation statement due\"},{\"id\":500094,\"docket_id\":7010027,\"court\":\"UDCWDW\",\"case_number\":\"2:26-cv-01931\",\"entry_number\":3,\"date_filed\":\"2026-07-09\",\"description\":\"REPLY BRIEF filed by counsel for Sterling Norcross. Per the court's order, the corresponding deadline is set for August 17, 2026.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010027/3/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Declaration\"}],\"recap_documents\":[{\"",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10027
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 1999
+            }
+          ]
+        },
+        {
+          "id": "toolu_01WyBozEpfj3JmLuy9Sf1XKD",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10028
+          },
+          "is_error": false,
+          "duration_ms": 159,
+          "result_bytes": 1579,
+          "result_tokens_est": 451,
+          "preview": "{\"count\":3,\"next\":null,\"results\":[{\"id\":500096,\"docket_id\":7010028,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-01376\",\"entry_number\":1,\"date_filed\":\"2026-05-28\",\"description\":\"MEDIATION STATEMENT filed by counsel for Brightwater Hospitality. Per the court's order, the corresponding deadline is set for September 17, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010028/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000960,\"is_available\":false,\"page_count\":4}],\"deadline_date\":\"2026-09-17\",\"deadline_type\":\"Mediation statement due\"},{\"id\":500097,\"docket_id\":7010028,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-01376\",\"entry_number\":2,\"date_filed\":\"2026-07-14\",\"description\":\"REPLY BRIEF filed by counsel for Quimby Jessup. Per the court's order, the corresponding deadline is set for October 23, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010028/2/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Proposed Order\"}],\"recap_documents\":[{\"id\":5000970,\"is_available\":false,\"page_count\":1}],\"deadline_date\":\"2026-10-23\",\"deadline_type\":\"Reply brief due\"},{\"id\":500098,\"docket_id\":7010028,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-01376\",\"entry_number\":3,\"date_filed\":\"2026-08-30\",\"description\":\"RESPONSE TO MOTION TO COMPEL filed by counsel for Quimby Jessup. Per the court's order, the corresponding deadline is set for September 11, 2026.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010028/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000980,\"is_available\":false,\"page_count\":24}],\"de",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10028
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 1579
+            }
+          ]
+        },
+        {
+          "id": "toolu_0188owp7bbLQogbPVcy3tsgE",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10033
+          },
+          "is_error": false,
+          "duration_ms": 159,
+          "result_bytes": 1823,
+          "result_tokens_est": 521,
+          "preview": "{\"count\":4,\"next\":null,\"results\":[{\"id\":500117,\"docket_id\":7010033,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-01184\",\"entry_number\":1,\"date_filed\":\"2026-08-01\",\"description\":\"NOTICE of Deposition of a corporate designee, to be taken remotely. Court reporter has been retained.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010033/1/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Exhibit A\"}],\"recap_documents\":[{\"id\":5001170,\"is_available\":false,\"page_count\":28}]},{\"id\":500118,\"docket_id\":7010033,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-01184\",\"entry_number\":2,\"date_filed\":\"2026-08-14\",\"description\":\"JOINT PRETRIAL STATEMENT filed by counsel for Foxglove Dental Group. Per the court's order, the corresponding deadline is set for October 03, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010033/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5001180,\"is_available\":false,\"page_count\":32}],\"deadline_date\":\"2026-10-03\",\"deadline_type\":\"Joint pretrial statement due\"},{\"id\":500119,\"docket_id\":7010033,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-01184\",\"entry_number\":3,\"date_filed\":\"2026-08-21\",\"description\":\"MOTION for Leave to File Excess Pages in connection with dispositive motions. Opposition, if any, is due per local rules.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010033/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5001190,\"is_available\":false,\"page_count\":9}]},{\"id\":500120,\"docket_id\":7010033,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-01184\",\"entry_number\":4,\"date_fi",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10033
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 1823
+            }
+          ]
+        },
+        {
+          "id": "toolu_01HVWn7VyHmBd3DsmDRZiXJx",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10041
+          },
+          "is_error": false,
+          "duration_ms": 160,
+          "result_bytes": 2311,
+          "result_tokens_est": 660,
+          "preview": "{\"count\":5,\"next\":null,\"results\":[{\"id\":500145,\"docket_id\":7010041,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-01776\",\"entry_number\":1,\"date_filed\":\"2026-06-08\",\"description\":\"ORDER granting in part the parties' joint request to modify the case schedule. All other dates remain in effect.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010041/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5001450,\"is_available\":false,\"page_count\":2}]},{\"id\":500146,\"docket_id\":7010041,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-01776\",\"entry_number\":2,\"date_filed\":\"2026-06-21\",\"description\":\"DEPOSITION OF CORPORATE REPRESENTATIVE filed by counsel for Whitmore Norcross. Per the court's order, the corresponding deadline is set for October 07, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010041/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5001460,\"is_available\":false,\"page_count\":24}],\"deadline_date\":\"2026-10-07\",\"deadline_type\":\"Deposition of corporate representative\"},{\"id\":500147,\"docket_id\":7010041,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-01776\",\"entry_number\":3,\"date_filed\":\"2026-06-29\",\"description\":\"DEPOSITION OF CORPORATE REPRESENTATIVE filed by counsel for Whitmore Norcross. Per the court's order, the corresponding deadline is set for September 06, 2026.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010041/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5001470,\"is_available\":false,\"page_count\":24}],\"deadline_date\":\"2026-09-06\",\"deadline_type\":\"Deposition of corporate representative\"},{\"i",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10041
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 2311
+            }
+          ]
+        },
+        {
+          "id": "toolu_01Qxe4hMH3cVvTdHz754eVsb",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10049
+          },
+          "is_error": false,
+          "duration_ms": 161,
+          "result_bytes": 1580,
+          "result_tokens_est": 451,
+          "preview": "{\"count\":3,\"next\":null,\"results\":[{\"id\":500170,\"docket_id\":7010049,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-06365\",\"entry_number\":1,\"date_filed\":\"2026-05-28\",\"description\":\"JOINT PRETRIAL STATEMENT filed by counsel for Holloway Hargrove. Per the court's order, the corresponding deadline is set for October 07, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010049/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5001700,\"is_available\":false,\"page_count\":3}],\"deadline_date\":\"2026-10-07\",\"deadline_type\":\"Joint pretrial statement due\"},{\"id\":500171,\"docket_id\":7010049,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-06365\",\"entry_number\":2,\"date_filed\":\"2026-07-17\",\"description\":\"OPPOSITION TO MOTION FOR SUMMARY JUDGMENT filed by counsel for Tidewater Freight. Per the court's order, the corresponding deadline is set for August 26, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010049/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5001710,\"is_available\":false,\"page_count\":39}],\"deadline_date\":\"2026-08-26\",\"deadline_type\":\"Opposition to motion for summary judgment due\"},{\"id\":500172,\"docket_id\":7010049,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-06365\",\"entry_number\":3,\"date_filed\":\"2026-07-19\",\"description\":\"MEDIATION STATEMENT filed by counsel for Holloway Hargrove. Per the court's order, the corresponding deadline is set for August 20, 2026.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010049/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5001720,\"is_available\":false,\"page_count",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10049
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 1580
+            }
+          ]
+        },
+        {
+          "id": "toolu_01LJzYHkSJ2gLJ7AfYMEATgy",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10061
+          },
+          "is_error": false,
+          "duration_ms": 161,
+          "result_bytes": 3502,
+          "result_tokens_est": 1001,
+          "preview": "{\"count\":8,\"next\":null,\"results\":[{\"id\":500219,\"docket_id\":7010061,\"court\":\"CCCCI\",\"case_number\":\"1:26-cv-00229\",\"entry_number\":1,\"date_filed\":\"2026-05-19\",\"description\":\"EXPERT DISCLOSURE filed by counsel for Pryce Lund. Per the court's order, the corresponding deadline is set for September 27, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010061/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002190,\"is_available\":false,\"page_count\":35}],\"deadline_date\":\"2026-09-27\",\"deadline_type\":\"Expert disclosure deadline\"},{\"id\":500220,\"docket_id\":7010061,\"court\":\"CCCCI\",\"case_number\":\"1:26-cv-00229\",\"entry_number\":2,\"date_filed\":\"2026-06-09\",\"description\":\"CLOSE OF FACT DISCOVERY filed by counsel for Umber Media. Per the court's order, the corresponding deadline is set for August 18, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010061/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002200,\"is_available\":false,\"page_count\":31}],\"deadline_date\":\"2026-08-18\",\"deadline_type\":\"Close of fact discovery\"},{\"id\":500221,\"docket_id\":7010061,\"court\":\"CCCCI\",\"case_number\":\"1:26-cv-00229\",\"entry_number\":3,\"date_filed\":\"2026-06-21\",\"description\":\"CERTIFICATE OF SERVICE re Plaintiff's First Set of Requests for Production. Served by email on all counsel of record.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010061/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002210,\"is_available\":false,\"page_count\":30}]},{\"id\":500222,\"docket_id\":7010061,\"court\":\"CCCCI\",\"case_number\":\"1:26-cv-00229",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10061
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 3502
+            }
+          ]
+        },
+        {
+          "id": "toolu_01J92AwFtgbbgznVXz7BMcm3",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10067
+          },
+          "is_error": false,
+          "duration_ms": 161,
+          "result_bytes": 2385,
+          "result_tokens_est": 681,
+          "preview": "{\"count\":5,\"next\":null,\"results\":[{\"id\":500244,\"docket_id\":7010067,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-01148\",\"entry_number\":1,\"date_filed\":\"2026-05-23\",\"description\":\"JOINT PRETRIAL STATEMENT filed by counsel for Nash Hargrove. Per the court's order, the corresponding deadline is set for September 15, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010067/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002440,\"is_available\":false,\"page_count\":13}],\"deadline_date\":\"2026-09-15\",\"deadline_type\":\"Joint pretrial statement due\"},{\"id\":500245,\"docket_id\":7010067,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-01148\",\"entry_number\":2,\"date_filed\":\"2026-05-24\",\"description\":\"ANSWER TO AMENDED COMPLAINT filed by counsel for Harlow Biotech. Per the court's order, the corresponding deadline is set for October 11, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010067/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002450,\"is_available\":false,\"page_count\":38}],\"deadline_date\":\"2026-10-11\",\"deadline_type\":\"Answer to amended complaint due\"},{\"id\":500246,\"docket_id\":7010067,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-01148\",\"entry_number\":3,\"date_filed\":\"2026-06-06\",\"description\":\"NOTICE of Deposition of a corporate designee, to be taken remotely. Court reporter has been retained.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010067/3/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Memorandum\"}],\"recap_documents\":[{\"id\":5002460,\"is_available\":false,\"page_count\":28}]},{\"id\":500",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10067
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 2385
+            }
+          ]
+        },
+        {
+          "id": "toolu_01QuQV6SPb3jcXfiJxFR4FvK",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10068
+          },
+          "is_error": false,
+          "duration_ms": 162,
+          "result_bytes": 1907,
+          "result_tokens_est": 545,
+          "preview": "{\"count\":4,\"next\":null,\"results\":[{\"id\":500249,\"docket_id\":7010068,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-08417\",\"entry_number\":1,\"date_filed\":\"2026-06-10\",\"description\":\"ORDER granting in part the parties' joint request to modify the case schedule. All other dates remain in effect.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010068/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002490,\"is_available\":false,\"page_count\":9}]},{\"id\":500250,\"docket_id\":7010068,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-08417\",\"entry_number\":2,\"date_filed\":\"2026-06-18\",\"description\":\"JOINT PRETRIAL STATEMENT filed by counsel for Garrity Okafor. Per the court's order, the corresponding deadline is set for September 24, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010068/2/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Exhibit A\"}],\"recap_documents\":[{\"id\":5002500,\"is_available\":false,\"page_count\":3}],\"deadline_date\":\"2026-09-24\",\"deadline_type\":\"Joint pretrial statement due\"},{\"id\":500251,\"docket_id\":7010068,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-08417\",\"entry_number\":3,\"date_filed\":\"2026-07-24\",\"description\":\"JOINT PRETRIAL STATEMENT filed by counsel for Alder Dental Group. Per the court's order, the corresponding deadline is set for September 17, 2026.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010068/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002510,\"is_available\":false,\"page_count\":40}],\"deadline_date\":\"2026-09-17\",\"deadline_type\":\"Joint pretrial statement due\"},{\"i",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10068
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 1907
+            }
+          ]
+        },
+        {
+          "id": "toolu_01SLuE82haWJq31U3JhA9H8s",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10070
+          },
+          "is_error": false,
+          "duration_ms": 162,
+          "result_bytes": 3829,
+          "result_tokens_est": 1094,
+          "preview": "{\"count\":8,\"next\":null,\"results\":[{\"id\":500253,\"docket_id\":7010070,\"court\":\"UDCWDW\",\"case_number\":\"2:26-cv-03413\",\"entry_number\":1,\"date_filed\":\"2026-05-23\",\"description\":\"ORDER granting in part the parties' joint request to modify the case schedule. All other dates remain in effect.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010070/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002530,\"is_available\":false,\"page_count\":25}]},{\"id\":500254,\"docket_id\":7010070,\"court\":\"UDCWDW\",\"case_number\":\"2:26-cv-03413\",\"entry_number\":2,\"date_filed\":\"2026-05-24\",\"description\":\"MOTION IN LIMINE filed by counsel for Overton Norcross. Per the court's order, the corresponding deadline is set for October 04, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010070/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002540,\"is_available\":false,\"page_count\":34}],\"deadline_date\":\"2026-10-04\",\"deadline_type\":\"Motion in limine deadline\"},{\"id\":500255,\"docket_id\":7010070,\"court\":\"UDCWDW\",\"case_number\":\"2:26-cv-03413\",\"entry_number\":3,\"date_filed\":\"2026-05-26\",\"description\":\"MINUTE ENTRY for proceedings held before the presiding judge. Status conference held; counsel for both sides present.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010070/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002550,\"is_available\":false,\"page_count\":12}]},{\"id\":500256,\"docket_id\":7010070,\"court\":\"UDCWDW\",\"case_number\":\"2:26-cv-03413\",\"entry_number\":4,\"date_filed\":\"2026-07-20\",\"description\":\"NOTICE of Deposition of a co",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10070
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 3829
+            }
+          ]
+        },
+        {
+          "id": "toolu_012mC9Abe72sEPoAi8uMarLb",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10071
+          },
+          "is_error": false,
+          "duration_ms": 162,
+          "result_bytes": 2419,
+          "result_tokens_est": 691,
+          "preview": "{\"count\":5,\"next\":null,\"results\":[{\"id\":500261,\"docket_id\":7010071,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-07524\",\"entry_number\":1,\"date_filed\":\"2026-06-16\",\"description\":\"EXPERT DISCLOSURE filed by counsel for Corbin Okafor. Per the court's order, the corresponding deadline is set for October 06, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010071/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002610,\"is_available\":false,\"page_count\":2}],\"deadline_date\":\"2026-10-06\",\"deadline_type\":\"Expert disclosure deadline\"},{\"id\":500262,\"docket_id\":7010071,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-07524\",\"entry_number\":2,\"date_filed\":\"2026-06-21\",\"description\":\"DEPOSITION OF CORPORATE REPRESENTATIVE filed by counsel for Corbin Okafor. Per the court's order, the corresponding deadline is set for September 14, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010071/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002620,\"is_available\":false,\"page_count\":6}],\"deadline_date\":\"2026-09-14\",\"deadline_type\":\"Deposition of corporate representative\"},{\"id\":500263,\"docket_id\":7010071,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-07524\",\"entry_number\":3,\"date_filed\":\"2026-08-14\",\"description\":\"NOTICE of Appearance filed by counsel for Defendant. Certificate of service attached.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010071/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002630,\"is_available\":false,\"page_count\":20}]},{\"id\":500264,\"docket_id\":7010071,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10071
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 2419
+            }
+          ]
+        },
+        {
+          "id": "toolu_01KByRRxWhc5Yt8jKXrJq3Ki",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10072
+          },
+          "is_error": false,
+          "duration_ms": 163,
+          "result_bytes": 2713,
+          "result_tokens_est": 775,
+          "preview": "{\"count\":6,\"next\":null,\"results\":[{\"id\":500266,\"docket_id\":7010072,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-09904\",\"entry_number\":1,\"date_filed\":\"2026-05-18\",\"description\":\"STIPULATION and [PROPOSED] ORDER regarding electronically stored information and a protective order for confidential materials.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010072/1/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Memorandum\"}],\"recap_documents\":[{\"id\":5002660,\"is_available\":false,\"page_count\":29}]},{\"id\":500267,\"docket_id\":7010072,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-09904\",\"entry_number\":2,\"date_filed\":\"2026-05-19\",\"description\":\"ANSWER TO AMENDED COMPLAINT filed by counsel for Birchwood Logistics. Per the court's order, the corresponding deadline is set for October 06, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010072/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002670,\"is_available\":false,\"page_count\":3}],\"deadline_date\":\"2026-10-06\",\"deadline_type\":\"Answer to amended complaint due\"},{\"id\":500268,\"docket_id\":7010072,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-09904\",\"entry_number\":3,\"date_filed\":\"2026-05-30\",\"description\":\"LETTER from counsel re discovery dispute and request for an informal conference with the court.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010072/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002680,\"is_available\":false,\"page_count\":7}]},{\"id\":500269,\"docket_id\":7010072,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-09904\",\"entry_number\":4,\"dat",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10072
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 2713
+            }
+          ]
+        },
+        {
+          "id": "toolu_01NVdpj9FT5fqDHwFAG6Wgjt",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10075
+          },
+          "is_error": false,
+          "duration_ms": 163,
+          "result_bytes": 1855,
+          "result_tokens_est": 530,
+          "preview": "{\"count\":4,\"next\":null,\"results\":[{\"id\":500278,\"docket_id\":7010075,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-05039\",\"entry_number\":1,\"date_filed\":\"2026-07-17\",\"description\":\"CLOSE OF FACT DISCOVERY filed by counsel for Juniper Biotech. Per the court's order, the corresponding deadline is set for October 31, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010075/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002780,\"is_available\":false,\"page_count\":27}],\"deadline_date\":\"2026-10-31\",\"deadline_type\":\"Close of fact discovery\"},{\"id\":500279,\"docket_id\":7010075,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-05039\",\"entry_number\":2,\"date_filed\":\"2026-07-30\",\"description\":\"REPLY BRIEF filed by counsel for Juniper Biotech. Per the court's order, the corresponding deadline is set for September 24, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010075/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002790,\"is_available\":false,\"page_count\":24}],\"deadline_date\":\"2026-09-24\",\"deadline_type\":\"Reply brief due\"},{\"id\":500280,\"docket_id\":7010075,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-05039\",\"entry_number\":3,\"date_filed\":\"2026-09-01\",\"description\":\"NOTICE of Deposition of a corporate designee, to be taken remotely. Court reporter has been retained.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010075/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002800,\"is_available\":false,\"page_count\":34}]},{\"id\":500281,\"docket_id\":7010075,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-05039\",\"entry_number\":4,",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10075
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 1855
+            }
+          ]
+        },
+        {
+          "id": "toolu_01Xtp96EiazUFqN26u8N5pLi",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10078
+          },
+          "is_error": false,
+          "duration_ms": 163,
+          "result_bytes": 3121,
+          "result_tokens_est": 892,
+          "preview": "{\"count\":7,\"next\":null,\"results\":[{\"id\":500290,\"docket_id\":7010078,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-02662\",\"entry_number\":1,\"date_filed\":\"2026-06-15\",\"description\":\"CERTIFICATE OF SERVICE re Plaintiff's First Set of Requests for Production. Served by email on all counsel of record.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010078/1/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Declaration\"}],\"recap_documents\":[{\"id\":5002900,\"is_available\":false,\"page_count\":34}]},{\"id\":500291,\"docket_id\":7010078,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-02662\",\"entry_number\":2,\"date_filed\":\"2026-06-30\",\"description\":\"JOINT PRETRIAL STATEMENT filed by counsel for Wexford Hospitality. Per the court's order, the corresponding deadline is set for August 30, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010078/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002910,\"is_available\":false,\"page_count\":15}],\"deadline_date\":\"2026-08-30\",\"deadline_type\":\"Joint pretrial statement due\"},{\"id\":500292,\"docket_id\":7010078,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-02662\",\"entry_number\":3,\"date_filed\":\"2026-07-06\",\"description\":\"CERTIFICATE OF SERVICE re Plaintiff's First Set of Requests for Production. Served by email on all counsel of record.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010078/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002920,\"is_available\":false,\"page_count\":33}]},{\"id\":500293,\"docket_id\":7010078,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-02662\",\"entry_number\":4,\"dat",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10078
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 3121
+            }
+          ]
+        },
+        {
+          "id": "toolu_017iX6JZkWpbJYEa2u2xtHN4",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10080
+          },
+          "is_error": false,
+          "duration_ms": 164,
+          "result_bytes": 1325,
+          "result_tokens_est": 379,
+          "preview": "{\"count\":3,\"next\":null,\"results\":[{\"id\":500297,\"docket_id\":7010080,\"court\":\"UDCWDW\",\"case_number\":\"2:26-cv-06342\",\"entry_number\":1,\"date_filed\":\"2026-06-04\",\"description\":\"NOTICE of Appearance filed by counsel for Defendant. Certificate of service attached.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010080/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002970,\"is_available\":false,\"page_count\":22}]},{\"id\":500298,\"docket_id\":7010080,\"court\":\"UDCWDW\",\"case_number\":\"2:26-cv-06342\",\"entry_number\":2,\"date_filed\":\"2026-08-08\",\"description\":\"RESPONSE TO MOTION TO COMPEL filed by counsel for Wexford Energy. Per the court's order, the corresponding deadline is set for October 07, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010080/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002980,\"is_available\":false,\"page_count\":33}],\"deadline_date\":\"2026-10-07\",\"deadline_type\":\"Response to motion to compel due\"},{\"id\":500299,\"docket_id\":7010080,\"court\":\"UDCWDW\",\"case_number\":\"2:26-cv-06342\",\"entry_number\":3,\"date_filed\":\"2026-08-30\",\"description\":\"MINUTE ENTRY for proceedings held before the presiding judge. Status conference held; counsel for both sides present.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010080/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5002990,\"is_available\":false,\"page_count\":13}]}]}",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10080
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 1325
+            }
+          ]
+        },
+        {
+          "id": "toolu_01XXmbVxgYyMULwKSXXHxpuw",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10083
+          },
+          "is_error": false,
+          "duration_ms": 164,
+          "result_bytes": 1887,
+          "result_tokens_est": 539,
+          "preview": "{\"count\":4,\"next\":null,\"results\":[{\"id\":500309,\"docket_id\":7010083,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-07335\",\"entry_number\":1,\"date_filed\":\"2026-06-27\",\"description\":\"NOTICE of Appearance filed by counsel for Defendant. Certificate of service attached.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010083/1/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Memorandum\"}],\"recap_documents\":[{\"id\":5003090,\"is_available\":false,\"page_count\":4}]},{\"id\":500310,\"docket_id\":7010083,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-07335\",\"entry_number\":2,\"date_filed\":\"2026-07-20\",\"description\":\"STIPULATION and [PROPOSED] ORDER regarding electronically stored information and a protective order for confidential materials.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010083/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5003100,\"is_available\":false,\"page_count\":8}]},{\"id\":500311,\"docket_id\":7010083,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-07335\",\"entry_number\":3,\"date_filed\":\"2026-07-26\",\"description\":\"OPPOSITION TO MOTION FOR SUMMARY JUDGMENT filed by counsel for Vantage Robotics. Per the court's order, the corresponding deadline is set for September 11, 2026.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010083/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5003110,\"is_available\":false,\"page_count\":21}],\"deadline_date\":\"2026-09-11\",\"deadline_type\":\"Opposition to motion for summary judgment due\"},{\"id\":500312,\"docket_id\":7010083,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-07335\",\"entry_numbe",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10083
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 1887
+            }
+          ]
+        },
+        {
+          "id": "toolu_01SLGFum4yeRPawcLxYh1s7t",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10084
+          },
+          "is_error": false,
+          "duration_ms": 165,
+          "result_bytes": 2191,
+          "result_tokens_est": 626,
+          "preview": "{\"count\":5,\"next\":null,\"results\":[{\"id\":500313,\"docket_id\":7010084,\"court\":\"CCCCI\",\"case_number\":\"1:26-cv-06209\",\"entry_number\":1,\"date_filed\":\"2026-05-29\",\"description\":\"MINUTE ENTRY for proceedings held before the presiding judge. Status conference held; counsel for both sides present.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010084/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5003130,\"is_available\":false,\"page_count\":24}]},{\"id\":500314,\"docket_id\":7010084,\"court\":\"CCCCI\",\"case_number\":\"1:26-cv-06209\",\"entry_number\":2,\"date_filed\":\"2026-06-01\",\"description\":\"REPLY in support of motion to compel, with declaration of counsel and exhibits A through D.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010084/2/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Exhibit A\"}],\"recap_documents\":[{\"id\":5003140,\"is_available\":false,\"page_count\":35}]},{\"id\":500315,\"docket_id\":7010084,\"court\":\"CCCCI\",\"case_number\":\"1:26-cv-06209\",\"entry_number\":3,\"date_filed\":\"2026-06-19\",\"description\":\"MOTION IN LIMINE filed by counsel for Nash Fenwick. Per the court's order, the corresponding deadline is set for October 02, 2026.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010084/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5003150,\"is_available\":false,\"page_count\":32}],\"deadline_date\":\"2026-10-02\",\"deadline_type\":\"Motion in limine deadline\"},{\"id\":500316,\"docket_id\":7010084,\"court\":\"CCCCI\",\"case_number\":\"1:26-cv-06209\",\"entry_number\":4,\"date_filed\":\"2026-07-29\",\"description\":\"MINUTE E",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10084
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 2191
+            }
+          ]
+        },
+        {
+          "id": "toolu_01TetQJrVzJuWsswznviJnPz",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10088
+          },
+          "is_error": false,
+          "duration_ms": 165,
+          "result_bytes": 1725,
+          "result_tokens_est": 493,
+          "preview": "{\"count\":4,\"next\":null,\"results\":[{\"id\":500331,\"docket_id\":7010088,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-01654\",\"entry_number\":1,\"date_filed\":\"2026-05-21\",\"description\":\"CERTIFICATE OF SERVICE re Plaintiff's First Set of Requests for Production. Served by email on all counsel of record.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010088/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5003310,\"is_available\":false,\"page_count\":8}]},{\"id\":500332,\"docket_id\":7010088,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-01654\",\"entry_number\":2,\"date_filed\":\"2026-06-06\",\"description\":\"MOTION IN LIMINE filed by counsel for Dalton Jessup. Per the court's order, the corresponding deadline is set for September 24, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010088/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5003320,\"is_available\":false,\"page_count\":26}],\"deadline_date\":\"2026-09-24\",\"deadline_type\":\"Motion in limine deadline\"},{\"id\":500333,\"docket_id\":7010088,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-01654\",\"entry_number\":3,\"date_filed\":\"2026-08-14\",\"description\":\"STIPULATION and [PROPOSED] ORDER regarding electronically stored information and a protective order for confidential materials.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010088/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5003330,\"is_available\":false,\"page_count\":27}]},{\"id\":500334,\"docket_id\":7010088,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-01654\",\"entry_number\":4,\"date_filed\":\"2026-08-17\",\"description\":\"NOTICE of A",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10088
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 1725
+            }
+          ]
+        },
+        {
+          "id": "toolu_01E2yqwR8E3avUjg9HLZ8nMT",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10090
+          },
+          "is_error": false,
+          "duration_ms": 165,
+          "result_bytes": 2716,
+          "result_tokens_est": 776,
+          "preview": "{\"count\":6,\"next\":null,\"results\":[{\"id\":500340,\"docket_id\":7010090,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-01069\",\"entry_number\":1,\"date_filed\":\"2026-05-21\",\"description\":\"MOTION for Leave to File Excess Pages in connection with dispositive motions. Opposition, if any, is due per local rules.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010090/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5003400,\"is_available\":false,\"page_count\":21}]},{\"id\":500341,\"docket_id\":7010090,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-01069\",\"entry_number\":2,\"date_filed\":\"2026-05-21\",\"description\":\"NOTICE of Deposition of a corporate designee, to be taken remotely. Court reporter has been retained.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010090/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5003410,\"is_available\":false,\"page_count\":13}]},{\"id\":500342,\"docket_id\":7010090,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-01069\",\"entry_number\":3,\"date_filed\":\"2026-06-22\",\"description\":\"STIPULATION and [PROPOSED] ORDER regarding electronically stored information and a protective order for confidential materials.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010090/3/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Declaration\"}],\"recap_documents\":[{\"id\":5003420,\"is_available\":false,\"page_count\":2}]},{\"id\":500343,\"docket_id\":7010090,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-01069\",\"entry_number\":4,\"date_filed\":\"2026-07-07\",\"description\":\"CERTIFICATE OF SERVICE re Plaintiff's First Set of Requests for P",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10090
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 2716
+            }
+          ]
+        },
+        {
+          "id": "toolu_018onkWjYiMbdtVZYiyrRV2r",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10095
+          },
+          "is_error": false,
+          "duration_ms": 166,
+          "result_bytes": 1355,
+          "result_tokens_est": 387,
+          "preview": "{\"count\":3,\"next\":null,\"results\":[{\"id\":500360,\"docket_id\":7010095,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-00645\",\"entry_number\":1,\"date_filed\":\"2026-06-05\",\"description\":\"LETTER from counsel re discovery dispute and request for an informal conference with the court.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010095/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5003600,\"is_available\":false,\"page_count\":33}]},{\"id\":500361,\"docket_id\":7010095,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-00645\",\"entry_number\":2,\"date_filed\":\"2026-07-28\",\"description\":\"EXPERT DISCLOSURE filed by counsel for Whitmore Jessup. Per the court's order, the corresponding deadline is set for October 07, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010095/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5003610,\"is_available\":false,\"page_count\":11}],\"deadline_date\":\"2026-10-07\",\"deadline_type\":\"Expert disclosure deadline\"},{\"id\":500362,\"docket_id\":7010095,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-00645\",\"entry_number\":3,\"date_filed\":\"2026-08-15\",\"description\":\"NOTICE of Deposition of a corporate designee, to be taken remotely. Court reporter has been retained.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010095/3/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Exhibit A\"}],\"recap_documents\":[{\"id\":5003620,\"is_available\":false,\"page_count\":22}]}]}",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10095
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 1355
+            }
+          ]
+        },
+        {
+          "id": "toolu_01PLTjL4dQ3TjyEdS3u6f4Ws",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10096
+          },
+          "is_error": false,
+          "duration_ms": 166,
+          "result_bytes": 3324,
+          "result_tokens_est": 950,
+          "preview": "{\"count\":8,\"next\":null,\"results\":[{\"id\":500363,\"docket_id\":7010096,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-03265\",\"entry_number\":1,\"date_filed\":\"2026-05-31\",\"description\":\"MINUTE ENTRY for proceedings held before the presiding judge. Status conference held; counsel for both sides present.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010096/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5003630,\"is_available\":false,\"page_count\":18}]},{\"id\":500364,\"docket_id\":7010096,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-03265\",\"entry_number\":2,\"date_filed\":\"2026-06-08\",\"description\":\"ORDER granting in part the parties' joint request to modify the case schedule. All other dates remain in effect.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010096/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5003640,\"is_available\":false,\"page_count\":21}]},{\"id\":500365,\"docket_id\":7010096,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-03265\",\"entry_number\":3,\"date_filed\":\"2026-06-12\",\"description\":\"ORDER granting in part the parties' joint request to modify the case schedule. All other dates remain in effect.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010096/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5003650,\"is_available\":false,\"page_count\":17}]},{\"id\":500366,\"docket_id\":7010096,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-03265\",\"entry_number\":4,\"date_filed\":\"2026-06-20\",\"description\":\"MINUTE ENTRY for proceedings held before the presiding judge. Status conference held; counsel for both sides present.\",\"doc",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10096
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 3324
+            }
+          ]
+        },
+        {
+          "id": "toolu_011zZsAVuF8NQoip2dvX5bZx",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10100
+          },
+          "is_error": false,
+          "duration_ms": 166,
+          "result_bytes": 1861,
+          "result_tokens_est": 532,
+          "preview": "{\"count\":4,\"next\":null,\"results\":[{\"id\":500383,\"docket_id\":7010100,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-08381\",\"entry_number\":1,\"date_filed\":\"2026-06-11\",\"description\":\"MEDIATION STATEMENT filed by counsel for Lakeshore Holdings. Per the court's order, the corresponding deadline is set for September 27, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010100/1/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Memorandum\"}],\"recap_documents\":[{\"id\":5003830,\"is_available\":false,\"page_count\":22}],\"deadline_date\":\"2026-09-27\",\"deadline_type\":\"Mediation statement due\"},{\"id\":500384,\"docket_id\":7010100,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-08381\",\"entry_number\":2,\"date_filed\":\"2026-06-19\",\"description\":\"MOTION IN LIMINE filed by counsel for Lakeshore Holdings. Per the court's order, the corresponding deadline is set for November 13, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010100/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5003840,\"is_available\":false,\"page_count\":9}],\"deadline_date\":\"2026-11-13\",\"deadline_type\":\"Motion in limine deadline\"},{\"id\":500385,\"docket_id\":7010100,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-08381\",\"entry_number\":3,\"date_filed\":\"2026-06-28\",\"description\":\"MINUTE ENTRY for proceedings held before the presiding judge. Status conference held; counsel for both sides present.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010100/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5003850,\"is_available\":false,\"page_count\":36}]},{\"id\":500386,\"doc",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10100
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 1861
+            }
+          ]
+        },
+        {
+          "id": "toolu_01TtWS23h41LrKsvgQ7hhDUR",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10103
+          },
+          "is_error": false,
+          "duration_ms": 166,
+          "result_bytes": 1399,
+          "result_tokens_est": 400,
+          "preview": "{\"count\":3,\"next\":null,\"results\":[{\"id\":500399,\"docket_id\":7010103,\"court\":\"CCCCI\",\"case_number\":\"1:26-cv-05069\",\"entry_number\":1,\"date_filed\":\"2026-05-19\",\"description\":\"NOTICE of Deposition of a corporate designee, to be taken remotely. Court reporter has been retained.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010103/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5003990,\"is_available\":false,\"page_count\":30}]},{\"id\":500400,\"docket_id\":7010103,\"court\":\"CCCCI\",\"case_number\":\"1:26-cv-05069\",\"entry_number\":2,\"date_filed\":\"2026-06-08\",\"description\":\"EXPERT DISCLOSURE filed by counsel for Prescott Wexler. Per the court's order, the corresponding deadline is set for September 17, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010103/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5004000,\"is_available\":false,\"page_count\":8}],\"deadline_date\":\"2026-09-17\",\"deadline_type\":\"Expert disclosure deadline\"},{\"id\":500401,\"docket_id\":7010103,\"court\":\"CCCCI\",\"case_number\":\"1:26-cv-05069\",\"entry_number\":3,\"date_filed\":\"2026-08-09\",\"description\":\"REPLY BRIEF filed by counsel for Wexford Apparel. Per the court's order, the corresponding deadline is set for September 25, 2026.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010103/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5004010,\"is_available\":false,\"page_count\":26}],\"deadline_date\":\"2026-09-25\",\"deadline_type\":\"Reply brief due\"}]}",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10103
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 1399
+            }
+          ]
+        },
+        {
+          "id": "toolu_01Aid8bCmMfwhPhfxuQ2HjJf",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10110
+          },
+          "is_error": false,
+          "duration_ms": 167,
+          "result_bytes": 1928,
+          "result_tokens_est": 551,
+          "preview": "{\"count\":4,\"next\":null,\"results\":[{\"id\":500422,\"docket_id\":7010110,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-02736\",\"entry_number\":1,\"date_filed\":\"2026-06-14\",\"description\":\"EXPERT DISCLOSURE filed by counsel for Copperfield Foods. Per the court's order, the corresponding deadline is set for September 14, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010110/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5004220,\"is_available\":false,\"page_count\":1}],\"deadline_date\":\"2026-09-14\",\"deadline_type\":\"Expert disclosure deadline\"},{\"id\":500423,\"docket_id\":7010110,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-02736\",\"entry_number\":2,\"date_filed\":\"2026-06-30\",\"description\":\"CERTIFICATE OF SERVICE re Plaintiff's First Set of Requests for Production. Served by email on all counsel of record.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010110/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5004230,\"is_available\":false,\"page_count\":3}]},{\"id\":500424,\"docket_id\":7010110,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-02736\",\"entry_number\":3,\"date_filed\":\"2026-07-25\",\"description\":\"DEPOSITION OF CORPORATE REPRESENTATIVE filed by counsel for Copperfield Foods. Per the court's order, the corresponding deadline is set for September 20, 2026.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010110/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5004240,\"is_available\":false,\"page_count\":1}],\"deadline_date\":\"2026-09-20\",\"deadline_type\":\"Deposition of corporate representative\"},{\"id\":500425,\"docket_id\":7010110,\"",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10110
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 1928
+            }
+          ]
+        },
+        {
+          "id": "toolu_014BTYKVSqDk7VK36jMyVrc2",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10114
+          },
+          "is_error": false,
+          "duration_ms": 167,
+          "result_bytes": 3368,
+          "result_tokens_est": 962,
+          "preview": "{\"count\":8,\"next\":null,\"results\":[{\"id\":500437,\"docket_id\":7010114,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-08281\",\"entry_number\":1,\"date_filed\":\"2026-05-27\",\"description\":\"LETTER from counsel re discovery dispute and request for an informal conference with the court.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010114/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5004370,\"is_available\":false,\"page_count\":33}]},{\"id\":500438,\"docket_id\":7010114,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-08281\",\"entry_number\":2,\"date_filed\":\"2026-06-01\",\"description\":\"MOTION IN LIMINE filed by counsel for Granite Freight. Per the court's order, the corresponding deadline is set for September 29, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010114/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5004380,\"is_available\":false,\"page_count\":5}],\"deadline_date\":\"2026-09-29\",\"deadline_type\":\"Motion in limine deadline\"},{\"id\":500439,\"docket_id\":7010114,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-08281\",\"entry_number\":3,\"date_filed\":\"2026-06-22\",\"description\":\"STIPULATION and [PROPOSED] ORDER regarding electronically stored information and a protective order for confidential materials.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010114/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5004390,\"is_available\":false,\"page_count\":8}]},{\"id\":500440,\"docket_id\":7010114,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-08281\",\"entry_number\":4,\"date_filed\":\"2026-07-04\",\"description\":\"CERTIFICATE OF SERVICE re Plaintiff's Fi",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10114
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 3368
+            }
+          ]
+        },
+        {
+          "id": "toolu_01HZ1tyemZLhfScpEU9iuam8",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10116
+          },
+          "is_error": false,
+          "duration_ms": 167,
+          "result_bytes": 3237,
+          "result_tokens_est": 925,
+          "preview": "{\"count\":7,\"next\":null,\"results\":[{\"id\":500449,\"docket_id\":7010116,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-02896\",\"entry_number\":1,\"date_filed\":\"2026-05-23\",\"description\":\"LETTER from counsel re discovery dispute and request for an informal conference with the court.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010116/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5004490,\"is_available\":false,\"page_count\":28}]},{\"id\":500450,\"docket_id\":7010116,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-02896\",\"entry_number\":2,\"date_filed\":\"2026-06-01\",\"description\":\"DEPOSITION OF CORPORATE REPRESENTATIVE filed by counsel for Copperfield Robotics. Per the court's order, the corresponding deadline is set for August 29, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010116/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5004500,\"is_available\":false,\"page_count\":40}],\"deadline_date\":\"2026-08-29\",\"deadline_type\":\"Deposition of corporate representative\"},{\"id\":500451,\"docket_id\":7010116,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-02896\",\"entry_number\":3,\"date_filed\":\"2026-07-16\",\"description\":\"RESPONSE TO MOTION TO COMPEL filed by counsel for Copperfield Robotics. Per the court's order, the corresponding deadline is set for October 21, 2026.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010116/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5004510,\"is_available\":false,\"page_count\":31}],\"deadline_date\":\"2026-10-21\",\"deadline_type\":\"Response to motion to compel due\"},{\"id\":500452,\"docket_id\":7010116,\"c",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10116
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 3237
+            }
+          ]
+        },
+        {
+          "id": "toolu_01WFFYhfP55vqNdmn4T8S9fm",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10120
+          },
+          "is_error": false,
+          "duration_ms": 167,
+          "result_bytes": 1880,
+          "result_tokens_est": 537,
+          "preview": "{\"count\":4,\"next\":null,\"results\":[{\"id\":500473,\"docket_id\":7010120,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-09952\",\"entry_number\":1,\"date_filed\":\"2026-05-31\",\"description\":\"CLOSE OF FACT DISCOVERY filed by counsel for Quimby Devereux. Per the court's order, the corresponding deadline is set for September 27, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010120/1/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Proposed Order\"}],\"recap_documents\":[{\"id\":5004730,\"is_available\":false,\"page_count\":21}],\"deadline_date\":\"2026-09-27\",\"deadline_type\":\"Close of fact discovery\"},{\"id\":500474,\"docket_id\":7010120,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-09952\",\"entry_number\":2,\"date_filed\":\"2026-07-15\",\"description\":\"REPLY in support of motion to compel, with declaration of counsel and exhibits A through D.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010120/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5004740,\"is_available\":false,\"page_count\":31}]},{\"id\":500475,\"docket_id\":7010120,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-09952\",\"entry_number\":3,\"date_filed\":\"2026-08-14\",\"description\":\"CERTIFICATE OF SERVICE re Plaintiff's First Set of Requests for Production. Served by email on all counsel of record.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010120/3/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Exhibit A\"}],\"recap_documents\":[{\"id\":5004750,\"is_available\":false,\"page_count\":6}]},{\"id\":500476,\"docket_id\":7010120,\"court\":\"UDCNDI\",\"case_number\":\"1:26-cv-09952\"",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10120
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 1880
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "started_ms": 35891,
+      "model_ms": 8479,
+      "retries": 0,
+      "retry_wait_ms": 0,
+      "tools_ms": 0,
+      "usage": {
+        "input_tokens": 2,
+        "cache_creation_input_tokens": 40514,
+        "cache_read_input_tokens": 163979,
+        "output_tokens": 1441
+      },
+      "context_tokens": 204495,
+      "cost_usd": 0.148495,
+      "stop_reason": "tool_use",
+      "text": "",
+      "tool_calls": [
+        {
+          "id": "toolu_01RLYWzyPMv3sfjqknaDbnCF",
+          "name": "submit_answer",
+          "input": {
+            "at_risk": [
+              {
+                "attorney": "Elena Kowalczyk",
+                "matters": [
+                  "HV-2026-0006",
+                  "HV-2026-0033",
+                  "HV-2026-0061",
+                  "HV-2026-0103"
+                ]
+              },
+              {
+                "attorney": "Marcus Oyelaran",
+                "matters": [
+                  "HV-2026-0010",
+                  "HV-2026-0016",
+                  "HV-2026-0025",
+                  "HV-2026-0027",
+                  "HV-2026-0068",
+                  "HV-2026-0075",
+                  "HV-2026-0088"
+                ]
+              },
+              {
+                "attorney": "Dana Whitfield",
+                "matters": [
+                  "HV-2026-0018",
+                  "HV-2026-0023",
+                  "HV-2026-0026",
+                  "HV-2026-0070",
+                  "HV-2026-0096",
+                  "HV-2026-0114",
+                  "HV-2026-0116"
+                ]
+              },
+              {
+                "attorney": "James Thornbury",
+                "matters": [
+                  "HV-2026-0020",
+                  "HV-2026-0078"
+                ]
+              },
+              {
+                "attorney": "Priya Raman",
+                "matters": [
+                  "HV-2026-0028",
+                  "HV-2026-0071",
+                  "HV-2026-0072",
+                  "HV-2026-0100",
+                  "HV-2026-0110"
+                ]
+              },
+              {
+                "attorney": "Tomás Ibarra",
+                "matters": [
+                  "HV-2026-0067",
+                  "HV-2026-0084",
+                  "HV-2026-0090",
+                  "HV-2026-0120"
+                ]
+              }
+            ],
+            "notes": "I pulled all 92 Open Litigation matters, all time entries dated 2026-09-01 or later, and all emails from 2026-09-01 to 2026-09-15. I dropped every matter with a billable entry in the window. I also dropped every matter with an email to or from one of the client's listed contacts. Emails with opposing counsel or other outsiders were ignored, and so were non-billable entries. For the 35 matters that remained, I pulled the docket. I kept the ones with a court deadline from 2026-09-15 to 2026-10-06, inclusive."
+          },
+          "is_error": false,
+          "duration_ms": 0,
+          "result_bytes": 16,
+          "result_tokens_est": 5,
+          "preview": "Answer recorded.",
+          "api_calls": []
+        }
+      ]
+    }
+  ],
+  "answer": {
+    "at_risk": [
+      {
+        "attorney": "Elena Kowalczyk",
+        "matters": [
+          "HV-2026-0006",
+          "HV-2026-0033",
+          "HV-2026-0061",
+          "HV-2026-0103"
+        ]
+      },
+      {
+        "attorney": "Marcus Oyelaran",
+        "matters": [
+          "HV-2026-0010",
+          "HV-2026-0016",
+          "HV-2026-0025",
+          "HV-2026-0027",
+          "HV-2026-0068",
+          "HV-2026-0075",
+          "HV-2026-0088"
+        ]
+      },
+      {
+        "attorney": "Dana Whitfield",
+        "matters": [
+          "HV-2026-0018",
+          "HV-2026-0023",
+          "HV-2026-0026",
+          "HV-2026-0070",
+          "HV-2026-0096",
+          "HV-2026-0114",
+          "HV-2026-0116"
+        ]
+      },
+      {
+        "attorney": "James Thornbury",
+        "matters": [
+          "HV-2026-0020",
+          "HV-2026-0078"
+        ]
+      },
+      {
+        "attorney": "Priya Raman",
+        "matters": [
+          "HV-2026-0028",
+          "HV-2026-0071",
+          "HV-2026-0072",
+          "HV-2026-0100",
+          "HV-2026-0110"
+        ]
+      },
+      {
+        "attorney": "Tomás Ibarra",
+        "matters": [
+          "HV-2026-0067",
+          "HV-2026-0084",
+          "HV-2026-0090",
+          "HV-2026-0120"
+        ]
+      }
+    ],
+    "notes": "I pulled all 92 Open Litigation matters, all time entries dated 2026-09-01 or later, and all emails from 2026-09-01 to 2026-09-15. I dropped every matter with a billable entry in the window. I also dropped every matter with an email to or from one of the client's listed contacts. Emails with opposing counsel or other outsiders were ignored, and so were non-billable entries. For the 35 matters that remained, I pulled the docket. I kept the ones with a court deadline from 2026-09-15 to 2026-10-06, inclusive."
+  },
+  "totals": {
+    "turns": 4,
+    "tool_calls": 46,
+    "api_calls": 45,
+    "input_tokens": 10,
+    "cache_creation_input_tokens": 204493,
+    "cache_read_input_tokens": 230740,
+    "output_tokens": 7281,
+    "context_peak_tokens": 204495,
+    "result_bytes": 422215,
+    "cost_usd": 0.630211,
+    "wall_ms": 44449,
+    "model_ms": 43350,
+    "tools_ms": 485
+  },
+  "score": {
+    "expected_count": 29,
+    "submitted_count": 29,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "grouping_exact": true,
+    "false_positives": [],
+    "false_negatives": [],
+    "errors_by_trap": {}
+  }
+}

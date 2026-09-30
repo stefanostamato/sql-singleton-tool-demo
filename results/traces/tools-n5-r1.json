@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "run_id": "tools-n5-r1",
+  "arm": "tools",
+  "n_matters": 5,
+  "rep": 1,
+  "stage": "proof",
+  "pot": "proof",
+  "model": "claude-sonnet-5-5",
+  "seed": 7,
+  "today": "2026-09-15",
+  "effort": "medium",
+  "latency_s": 0.15,
+  "started_at": "2026-09-29T21:43:12Z",
+  "finished_at": "2026-09-29T21:43:23Z",
+  "outcome": "answered",
+  "error": null,
+  "question": "Which active litigation matters are at risk of being neglected? A matter is at risk only if all of these are true:\n1. Its status is Open and its practice area is Litigation.\n2. It has a court deadline from 2026-09-15 to 2026-10-06, inclusive.\n3. No email dated 2026-09-01 to 2026-09-15, inclusive, was sent to or from any of the client's contacts. Emails with opposing counsel or anyone else don't count.\n4. No billable time was recorded on it dated 2026-09-01 to 2026-09-15, inclusive. Non-billable entries don't count.\nList the at-risk matters by display number (like HV-2026-0012), grouped by responsible attorney, and submit them with the submit_answer tool.",
+  "system_prompt": "You are an assistant at Harbor & Vale LLP with read-only access to the firm's systems through the tools provided. Today is 2026-09-15. Use the tools to find the answer; do not guess. When you have the final answer, call submit_answer exactly once.",
+  "tools": [
+    {
+      "name": "matters_list",
+      "description": "List matters from the firm's practice management system (Clio Manage API, GET /api/v4/matters).\n        Returns matter records with the client and its contacts, the responsible and originating attorney,\n        practice area, status, open and close dates, court and case number, custom fields and billing\n        settings. Optional filters: status (Open, Pending or Closed) and practice_area (Litigation,\n        Corporate, Employment, Intellectual Property or Real Estate). Results are paginated at 25 records\n        per page; pass page=2, 3, ... until meta.paging.next is null. meta.records is the total number of\n        matching matters. Dates are YYYY-MM-DD."
+    },
+    {
+      "name": "docket_entries",
+      "description": "List court docket entries for one matter (CourtListener docket-entries API,\n        GET /api/rest/v4/docket-entries). Takes the numeric matter id from matters_list (the id field, for\n        example 10001). Returns every entry filed on the matter's case: entry number, filing date\n        (YYYY-MM-DD), description, document number and attachments. Entries that set a court deadline also\n        carry deadline_date (YYYY-MM-DD) and deadline_type. Only litigation matters have a docket; other\n        matters return an empty list. All entries come back in one response (no pagination)."
+    },
+    {
+      "name": "mail_search",
+      "description": "Search the firm's mailbox (Microsoft Graph, GET /v1.0/me/messages). Returns messages newest\n        first with subject, body, sender, to and cc recipients, received time and flags. participants is a\n        list of email addresses; a message matches if any listed address appears in from, to or cc. after\n        and before filter on the received date, both inclusive, in YYYY-MM-DD form. Omit all filters to\n        list every message. Results are paginated at 50 messages per page; while the response has an\n        @odata.nextLink, call again with the next page number."
+    },
+    {
+      "name": "time_entries",
+      "description": "List time entries from the billing system (Clio Manage activities API, GET /api/v4/activities).\n        Each entry has the date (YYYY-MM-DD), hours, hourly rate, total, note, the user who recorded it, the\n        matter it belongs to, and whether it is non_billable or already billed. Optional filters: matter_id\n        (numeric matter id from matters_list) and after (YYYY-MM-DD, inclusive: only entries dated on or\n        after this day). Results are paginated at 100 entries per page; pass page=2, 3, ... until\n        meta.paging.next is null."
+    },
+    {
+      "name": "submit_answer",
+      "description": "Submit the final answer: the at-risk matters grouped by responsible attorney. Call exactly once."
+    }
+  ],
+  "turns": [
+    {
+      "index": 0,
+      "started_ms": 722,
+      "model_ms": 1859,
+      "tools_ms": 154,
+      "usage": {
+        "input_tokens": 4,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 2370,
+        "output_tokens": 202
+      },
+      "context_tokens": 2374,
+      "cost_usd": 0.002502,
+      "stop_reason": "tool_use",
+      "text": "",
+      "tool_calls": [
+        {
+          "id": "toolu_01QbxxsQMth7EvAY2HJKUBVx",
+          "name": "matters_list",
+          "input": {
+            "status": "Open",
+            "practice_area": "Litigation"
+          },
+          "is_error": false,
+          "duration_ms": 154,
+          "result_bytes": 6711,
+          "result_tokens_est": 1917,
+          "preview": "{\"data\":[{\"id\":10001,\"etag\":\"\\\"0a13c53022bc\\\"\",\"display_number\":\"HV-2026-0001\",\"description\":\"Wexford Logistics defense of a wage and hour class action filed against the company.\",\"status\":\"Open\",\"location\":\"Chicago, IL\",\"client\":{\"id\":20001,\"name\":\"Wexford Logistics\",\"type\":\"Company\",\"primary_email_address\":\"samir.khan@wexford-logistics.example\",\"contacts\":[{\"id\":30001,\"name\":\"Samir Khan\",\"title\":\"Director of HR\",\"email\":\"samir.khan@wexford-logistics.example\",\"phone\":\"+1-555-139-6395\"}]},\"practice_area\":{\"id\":400,\"name\":\"Litigation\"},\"responsible_attorney\":{\"id\":1001,\"name\":\"Dana Whitfield\",\"email\":\"dana.whitfield@harborvale.example\"},\"originating_attorney\":{\"id\":1001,\"name\":\"Dana Whitfield\",\"email\":\"dana.whitfield@harborvale.example\"},\"open_date\":\"2025-11-14\",\"close_date\":null,\"billable\":true,\"billing_method\":\"hourly\",\"statute_of_limitations\":\"2027-01-06\",\"court\":{\"name\":\"U.S. District Court, Southern District of New York\",\"case_number\":\"1:26-cv-00705\"},\"custom_field_values\":[{\"field_name\":\"Insurance Carrier Notified\",\"value\":\"Not applicable\"},{\"field_name\":\"Conflict Check\",\"value\":\"Cleared with waiver\"}],\"created_at\":\"2025-11-14T14:05:12Z\",\"updated_at\":\"2026-09-13T18:29:03Z\"},{\"id\":10002,\"etag\":\"\\\"9dd1d36dee54\\\"\",\"display_number\":\"HV-2026-0002\",\"description\":\"Granite Dental Group v. Lockhart Penhale: commercial contract dispute over unpaid invoices and breach of warranty.\",\"status\":\"Open\",\"location\":\"Chicago, IL\",\"client\":{\"id\":20002,\"name\":\"Granite Dental Group\",\"type\":\"C",
+          "api_calls": [
+            {
+              "source": "matters",
+              "endpoint": "GET /api/v4/matters",
+              "params": {
+                "status": "Open",
+                "practice_area": "Litigation",
+                "page": 1,
+                "page_size": 25
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 6711
+            }
+          ]
+        },
+        {
+          "id": "toolu_01TkEScaPZUz6WkpmJ1j5pvH",
+          "name": "time_entries",
+          "input": {
+            "after": "2026-09-01"
+          },
+          "is_error": false,
+          "duration_ms": 154,
+          "result_bytes": 1707,
+          "result_tokens_est": 488,
+          "preview": "{\"data\":[{\"id\":900029,\"etag\":\"\\\"89e8d78b\\\"\",\"type\":\"TimeEntry\",\"date\":\"2026-09-13\",\"quantity_in_hours\":4.5,\"rounded_quantity_in_hours\":4.5,\"price\":425.0,\"total\":0.0,\"note\":\"Emails with opposing counsel re scheduling\",\"non_billable\":true,\"billed\":false,\"matter\":{\"id\":10004,\"display_number\":\"HV-2026-0004\"},\"user\":{\"id\":1001,\"name\":\"Dana Whitfield\"},\"activity_description\":{\"name\":\"Client call\"},\"updated_at\":\"2026-09-13T16:06:27Z\"},{\"id\":900011,\"etag\":\"\\\"ef9a2a93\\\"\",\"type\":\"TimeEntry\",\"date\":\"2026-09-13\",\"quantity_in_hours\":2.0,\"rounded_quantity_in_hours\":2.0,\"price\":425.0,\"total\":850.0,\"note\":\"Reviewed opposing production\",\"non_billable\":false,\"billed\":false,\"matter\":{\"id\":10002,\"display_number\":\"HV-2026-0002\"},\"user\":{\"id\":1001,\"name\":\"Dana Whitfield\"},\"activity_description\":{\"name\":\"Drafting\"},\"updated_at\":\"2026-09-13T15:28:26Z\"},{\"id\":900031,\"etag\":\"\\\"3097b0c7\\\"\",\"type\":\"TimeEntry\",\"date\":\"2026-09-09\",\"quantity_in_hours\":0.3,\"rounded_quantity_in_hours\":0.3,\"price\":550.0,\"total\":165.0,\"note\":\"Reviewed opposing production\",\"non_billable\":false,\"billed\":false,\"matter\":{\"id\":10005,\"display_number\":\"HV-2026-0005\"},\"user\":{\"id\":1002,\"name\":\"Marcus Oyelaran\"},\"activity_description\":{\"name\":\"Legal research\"},\"updated_at\":\"2026-09-09T15:01:05Z\"},{\"id\":900017,\"etag\":\"\\\"129874b1\\\"\",\"type\":\"TimeEntry\",\"date\":\"2026-09-05\",\"quantity_in_hours\":0.3,\"rounded_quantity_in_hours\":0.3,\"price\":495.0,\"total\":0.0,\"note\":\"Contract redline review\",\"non_billable\":true,\"billed\":false,\"matter\":{\"id\":1000",
+          "api_calls": [
+            {
+              "source": "billing",
+              "endpoint": "GET /api/v4/activities",
+              "params": {
+                "after": "2026-09-01",
+                "page": 1,
+                "page_size": 100
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 1707
+            }
+          ]
+        },
+        {
+          "id": "toolu_01KaE1xdhEwPzv6bd7pYqyaN",
+          "name": "mail_search",
+          "input": {
+            "after": "2026-09-01",
+            "before": "2026-09-15"
+          },
+          "is_error": false,
+          "duration_ms": 154,
+          "result_bytes": 9287,
+          "result_tokens_est": 2653,
+          "preview": "{\"@odata.context\":\"https://graph.microsoft.com/v1.0/$metadata#users('me')/messages\",\"value\":[{\"id\":\"AAMkAGE1f8ccdf89b75\",\"categories\":[],\"receivedDateTime\":\"2026-09-09T16:55:36Z\",\"sentDateTime\":\"2026-09-09T16:55:34Z\",\"hasAttachments\":false,\"internetMessageId\":\"<a5320200@mail.harborvale.example>\",\"subject\":\"RE: [HV-2026-0003] Draft stipulation\",\"bodyPreview\":\"Hi Priya, Attached is our supplemental production. We reserve all rights and objections as previously stated.\",\"importance\":\"high\",\"parentFolderId\":\"AQMkAGE558e95\",\"conversationId\":\"AAQkAGEec33585717\",\"isRead\":true,\"webLink\":\"https://outlook.example/owa/?ItemID=AAMkAGE1f8cc\",\"body\":{\"contentType\":\"html\",\"content\":\"<html><body><p>Hi Priya,</p><p>Attached is our supplemental production. We reserve all rights and objections as previously stated.</p></body></html>\"},\"sender\":{\"emailAddress\":{\"name\":\"Isaac Cho\",\"address\":\"isaac.cho@overton-devereux-llp.example\"}},\"from\":{\"emailAddress\":{\"name\":\"Isaac Cho\",\"address\":\"isaac.cho@overton-devereux-llp.example\"}},\"toRecipients\":[{\"emailAddress\":{\"name\":\"Priya Raman\",\"address\":\"priya.raman@harborvale.example\"}}],\"ccRecipients\":[]},{\"id\":\"AAMkAGE7bda85d8288e\",\"categories\":[],\"receivedDateTime\":\"2026-09-09T10:05:29Z\",\"sentDateTime\":\"2026-09-09T10:05:25Z\",\"hasAttachments\":false,\"internetMessageId\":\"<0fb824e3@mail.harborvale.example>\",\"subject\":\"Office closed for elevator maintenance Saturday\",\"bodyPreview\":\"The building will be closed on Saturday for scheduled elevator maintenance. Remo",
+          "api_calls": [
+            {
+              "source": "mail",
+              "endpoint": "GET /v1.0/me/messages",
+              "params": {
+                "after": "2026-09-01",
+                "before": "2026-09-15",
+                "page": 1,
+                "page_size": 50
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 9287
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "started_ms": 2736,
+      "model_ms": 2301,
+      "tools_ms": 155,
+      "usage": {
+        "input_tokens": 2,
+        "cache_creation_input_tokens": 8472,
+        "cache_read_input_tokens": 2370,
+        "output_tokens": 239
+      },
+      "context_tokens": 10844,
+      "cost_usd": 0.024048,
+      "stop_reason": "tool_use",
+      "text": "",
+      "tool_calls": [
+        {
+          "id": "toolu_01PRqPjD3549hAemafi71aU5",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10003
+          },
+          "is_error": false,
+          "duration_ms": 154,
+          "result_bytes": 1447,
+          "result_tokens_est": 413,
+          "preview": "{\"count\":3,\"next\":null,\"results\":[{\"id\":500011,\"docket_id\":7010003,\"court\":\"CCCCI\",\"case_number\":\"1:26-cv-01805\",\"entry_number\":1,\"date_filed\":\"2026-06-12\",\"description\":\"DEPOSITION OF CORPORATE REPRESENTATIVE filed by counsel for Brightwater Media. Per the court's order, the corresponding deadline is set for September 30, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010003/1/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Memorandum\"}],\"recap_documents\":[{\"id\":5000110,\"is_available\":false,\"page_count\":32}],\"deadline_date\":\"2026-09-30\",\"deadline_type\":\"Deposition of corporate representative\"},{\"id\":500012,\"docket_id\":7010003,\"court\":\"CCCCI\",\"case_number\":\"1:26-cv-01805\",\"entry_number\":2,\"date_filed\":\"2026-07-05\",\"description\":\"NOTICE of Deposition of a corporate designee, to be taken remotely. Court reporter has been retained.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010003/2/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Proposed Order\"}],\"recap_documents\":[{\"id\":5000120,\"is_available\":false,\"page_count\":14}]},{\"id\":500013,\"docket_id\":7010003,\"court\":\"CCCCI\",\"case_number\":\"1:26-cv-01805\",\"entry_number\":3,\"date_filed\":\"2026-07-28\",\"description\":\"NOTICE of Deposition of a corporate designee, to be taken remotely. Court reporter has been retained.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010003/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000130,\"is_available\":false,\"page_count\":19}]}]}",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10003
+              },
+              "started_ms": 0,
+              "duration_ms": 151,
+              "bytes": 1447
+            }
+          ]
+        },
+        {
+          "id": "toolu_01SjgUgXJMH8oxVxPsvQYbwW",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10004
+          },
+          "is_error": false,
+          "duration_ms": 155,
+          "result_bytes": 1857,
+          "result_tokens_est": 531,
+          "preview": "{\"count\":4,\"next\":null,\"results\":[{\"id\":500014,\"docket_id\":7010004,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-06576\",\"entry_number\":1,\"date_filed\":\"2026-07-07\",\"description\":\"EXPERT DISCLOSURE filed by counsel for Tolliver Norcross. Per the court's order, the corresponding deadline is set for August 31, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010004/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000140,\"is_available\":false,\"page_count\":25}],\"deadline_date\":\"2026-08-31\",\"deadline_type\":\"Expert disclosure deadline\"},{\"id\":500015,\"docket_id\":7010004,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-06576\",\"entry_number\":2,\"date_filed\":\"2026-07-15\",\"description\":\"NOTICE of Deposition of a corporate designee, to be taken remotely. Court reporter has been retained.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010004/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000150,\"is_available\":false,\"page_count\":10}]},{\"id\":500016,\"docket_id\":7010004,\"court\":\"UDCDM\",\"case_number\":\"1:26-cv-06576\",\"entry_number\":3,\"date_filed\":\"2026-08-06\",\"description\":\"DEPOSITION OF CORPORATE REPRESENTATIVE filed by counsel for Tolliver Norcross. Per the court's order, the corresponding deadline is set for October 07, 2026.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010004/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000160,\"is_available\":false,\"page_count\":23}],\"deadline_date\":\"2026-10-07\",\"deadline_type\":\"Deposition of corporate representative\"},{\"id\":500017,\"docket_id\":7010004,\"court\":\"UDCDM\",\"ca",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10004
+              },
+              "started_ms": 0,
+              "duration_ms": 151,
+              "bytes": 1857
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "started_ms": 5193,
+      "model_ms": 2357,
+      "tools_ms": 0,
+      "usage": {
+        "input_tokens": 2,
+        "cache_creation_input_tokens": 1725,
+        "cache_read_input_tokens": 10842,
+        "output_tokens": 295
+      },
+      "context_tokens": 12569,
+      "cost_usd": 0.009435,
+      "stop_reason": "tool_use",
+      "text": "0004's deadlines fall outside the window, so only 0003 qualifies.",
+      "tool_calls": [
+        {
+          "id": "toolu_01MAZJgd319aCpoL2ZfMP3X8",
+          "name": "submit_answer",
+          "input": {
+            "at_risk": [
+              {
+                "attorney": "Priya Raman",
+                "matters": [
+                  "HV-2026-0003"
+                ]
+              }
+            ],
+            "notes": "Five open litigation matters. HV-2026-0003 is at risk: it has a 9/30 deadline, its only Sept emails are from opposing counsel, and its only Sept time entry is non-billable. HV-2026-0001 and 0005 had client-contact emails. HV-2026-0002 had billable time. HV-2026-0004's deadlines are 8/31 and 10/7, both outside the window. I didn't check docket deadlines for 0001, 0002 or 0005 because they already failed another test."
+          },
+          "is_error": false,
+          "duration_ms": 0,
+          "result_bytes": 16,
+          "result_tokens_est": 5,
+          "preview": "Answer recorded.",
+          "api_calls": []
+        }
+      ]
+    }
+  ],
+  "answer": {
+    "at_risk": [
+      {
+        "attorney": "Priya Raman",
+        "matters": [
+          "HV-2026-0003"
+        ]
+      }
+    ],
+    "notes": "Five open litigation matters. HV-2026-0003 is at risk: it has a 9/30 deadline, its only Sept emails are from opposing counsel, and its only Sept time entry is non-billable. HV-2026-0001 and 0005 had client-contact emails. HV-2026-0002 had billable time. HV-2026-0004's deadlines are 8/31 and 10/7, both outside the window. I didn't check docket deadlines for 0001, 0002 or 0005 because they already failed another test."
+  },
+  "totals": {
+    "turns": 3,
+    "tool_calls": 6,
+    "api_calls": 5,
+    "input_tokens": 8,
+    "cache_creation_input_tokens": 10197,
+    "cache_read_input_tokens": 15582,
+    "output_tokens": 736,
+    "context_peak_tokens": 12569,
+    "result_bytes": 21025,
+    "cost_usd": 0.035985,
+    "wall_ms": 7681,
+    "model_ms": 6517,
+    "tools_ms": 309
+  },
+  "score": {
+    "expected_count": 1,
+    "submitted_count": 1,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "grouping_exact": true,
+    "false_positives": [],
+    "false_negatives": []
+  }
+}

@@ -1,0 +1,73 @@
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  font-size: 0.9rem;
+  margin: 12px 0 16px;
+}
+.grid4 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+@media (max-width: 900px) {
+  .grid4 {
+    grid-template-columns: 1fr;
+  }
+}
+.fig {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.plot {
+  position: relative;
+}
+.plot svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.axis {
+  stroke: var(--ink-3);
+  stroke-width: 1;
+}
+.tick {
+  fill: var(--ink-2);
+  font-size: 10px;
+  font-family: var(--font-body);
+}
+.direct {
+  fill: var(--arm-ink, var(--ink));
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font-body);
+}
+.tip {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 10px));
+  background: var(--ink);
+  color: var(--surface);
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 5;
+}
+.details {
+  margin-top: 20px;
+}
+.details summary {
+  cursor: pointer;
+  font-size: 0.9rem;
+}

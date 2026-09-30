@@ -1,0 +1,17 @@
+[project]
+name = "sql-singleton-tool"
+version = "0.1.0"
+description = "One SQL tool versus one tool per system: an agent experiment over four fake legal-firm systems"
+requires-python = ">=3.12"
+dependencies = ["anthropic>=1.9.0", "mcp>=1.30.0,<2", "duckdb>=1.5.6"]
+
+[dependency-groups]
+dev = ["pytest", "pytest-asyncio"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+asyncio_mode = "auto"
+testpaths = ["tests"]

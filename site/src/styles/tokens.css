@@ -1,0 +1,199 @@
+/* Design tokens from designs/design_system.pen. Light on :root, dark on the selectors below. */
+
+:root {
+  color-scheme: light;
+
+  /* Colors, light */
+  --bg: #FFFFFF;
+  --bg-subtle: #F4F7FB;
+  --surface: #FFFFFF;
+  --surface-raised: #FFFFFF;
+  --ink: #0B1B33;
+  --ink-2: #5A6B85;
+  --ink-3: #66758C;
+  --hair: #E6EBF2;
+  --hair-strong: #CFD8E5;
+  --blue: #1C55A6;
+  --on-blue: #FFFFFF;
+  --blue-soft: #E8EFF9;
+  --blue-ink: #1C55A6;
+  --blue-strip: #1C55A6;
+  --ochre: #C8962E;
+  --ochre-soft: #F8EFDD;
+  --ochre-ink: #80590F;
+  --ochre-strip: #C8962E;
+  --on-ochre: #0B1B33;
+  --sage: #4F8A6E;
+  --sage-soft: #E5F0EA;
+  --sage-ink: #2F6B50;
+  --sage-strip: #4F8A6E;
+  --on-sage: #FFFFFF;
+  --plum: #7A5AA6;
+  --plum-soft: #EFE9F7;
+  --plum-ink: #5E4388;
+  --plum-strip: #7A5AA6;
+  --on-plum: #FFFFFF;
+  --red: #B3403A;
+  --red-soft: #F9E7E5;
+  --notes: #1C55A6;
+  --dim: #1C55A680;
+  --grid-faint: #1C55A61F;
+  --panel: #1C55A6;
+  --panel-line: #FFFFFF22;
+  --panel-major: #FFFFFF38;
+  --panel-ink: #FFFFFF;
+  --panel-ink-2: #D3E1F5;
+  --panel-note: #FFFFFF;
+  --code-bg: #0B1B33;
+  --code-ink: #E8EEF7;
+  --focus: #1C55A659;
+  --shadow: #0B1B331F;
+  --tape: #FFFFFF8C;
+  --bg-clear: #FFFFFF00;
+  --blue-hover: #164785;
+
+  /* Font families */
+  --font-head: "Inter Tight Variable", "Inter Tight", sans-serif;
+  --font-body: "Inter Variable", "Inter", sans-serif;
+  --font-note: "Architects Daughter", cursive;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono", monospace;
+
+  /* Type sizes */
+  --type-display: 88px;
+  --type-h1: 64px;
+  --type-h2: 40px;
+  --type-h3: 28px;
+  --type-h4: 22px;
+  --type-lead: 20px;
+  --type-body: 17px;
+  --type-small: 15px;
+  --type-caption: 13px;
+  --type-mono: 12px;
+  --type-note: 22px;
+
+  /* Spacing, 4px base */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 120px;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-page: 28px;
+  --radius-pill: 99px;
+}
+
+/* Colors, dark: explicit choice */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0B1322;
+  --bg-subtle: #0F1A2E;
+  --surface: #101C31;
+  --surface-raised: #15233B;
+  --ink: #E8EEF7;
+  --ink-2: #9AA9BF;
+  --ink-3: #8595AC;
+  --hair: #1C2740;
+  --hair-strong: #2A3852;
+  --blue: #5B8FE0;
+  --on-blue: #0B1322;
+  --blue-soft: #15284A;
+  --blue-ink: #8DB3EE;
+  --blue-strip: #1C4B8A;
+  --ochre: #E0B458;
+  --ochre-soft: #2B2414;
+  --ochre-ink: #E0B458;
+  --ochre-strip: #8A6A24;
+  --on-ochre: #0B1322;
+  --sage: #86C0A2;
+  --sage-soft: #15291F;
+  --sage-ink: #86C0A2;
+  --sage-strip: #2F5E4A;
+  --on-sage: #0B1322;
+  --plum: #B49BDB;
+  --plum-soft: #241C35;
+  --plum-ink: #B49BDB;
+  --plum-strip: #4D3A73;
+  --on-plum: #0B1322;
+  --red: #E88A82;
+  --red-soft: #331B19;
+  --notes: #A9C4EE;
+  --dim: #A9C4EE80;
+  --grid-faint: #5B8FE024;
+  --panel: #102C57;
+  --panel-line: #FFFFFF1A;
+  --panel-major: #FFFFFF2E;
+  --panel-ink: #F1F5FB;
+  --panel-ink-2: #B8C9E3;
+  --panel-note: #E0B458;
+  --code-bg: #060B14;
+  --code-ink: #E8EEF7;
+  --focus: #5B8FE073;
+  --shadow: #00000073;
+  --tape: #FFFFFF40;
+  --bg-clear: #0B132200;
+  --blue-hover: #7AA6EA;
+}
+
+/* Colors, dark: system preference when no choice is stored */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0B1322;
+    --bg-subtle: #0F1A2E;
+    --surface: #101C31;
+    --surface-raised: #15233B;
+    --ink: #E8EEF7;
+    --ink-2: #9AA9BF;
+    --ink-3: #8595AC;
+    --hair: #1C2740;
+    --hair-strong: #2A3852;
+    --blue: #5B8FE0;
+    --on-blue: #0B1322;
+    --blue-soft: #15284A;
+    --blue-ink: #8DB3EE;
+    --blue-strip: #1C4B8A;
+    --ochre: #E0B458;
+    --ochre-soft: #2B2414;
+    --ochre-ink: #E0B458;
+    --ochre-strip: #8A6A24;
+    --on-ochre: #0B1322;
+    --sage: #86C0A2;
+    --sage-soft: #15291F;
+    --sage-ink: #86C0A2;
+    --sage-strip: #2F5E4A;
+    --on-sage: #0B1322;
+    --plum: #B49BDB;
+    --plum-soft: #241C35;
+    --plum-ink: #B49BDB;
+    --plum-strip: #4D3A73;
+    --on-plum: #0B1322;
+    --red: #E88A82;
+    --red-soft: #331B19;
+    --notes: #A9C4EE;
+    --dim: #A9C4EE80;
+    --grid-faint: #5B8FE024;
+    --panel: #102C57;
+    --panel-line: #FFFFFF1A;
+    --panel-major: #FFFFFF2E;
+    --panel-ink: #F1F5FB;
+    --panel-ink-2: #B8C9E3;
+    --panel-note: #E0B458;
+    --code-bg: #060B14;
+    --code-ink: #E8EEF7;
+    --focus: #5B8FE073;
+    --shadow: #00000073;
+    --tape: #FFFFFF40;
+    --bg-clear: #0B132200;
+    --blue-hover: #7AA6EA;
+  }
+}

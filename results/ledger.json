@@ -1,0 +1,439 @@
+{
+  "pots": {
+    "dev": {
+      "cap": 1.0,
+      "spent": 0.2860503
+    },
+    "proof": {
+      "cap": 2.0,
+      "spent": 0.8185473
+    },
+    "showcase": {
+      "cap": 7.0,
+      "spent": 0.7402388
+    },
+    "p2-base": {
+      "cap": 4.2,
+      "spent": 3.6877979
+    },
+    "p2-variants": {
+      "cap": 4.4,
+      "spent": 4.1417643
+    }
+  },
+  "runs": [
+    {
+      "run_id": "sql-n5-r1",
+      "pot": "dev",
+      "model": "claude-haiku-4-5",
+      "cost_usd": 0.032892,
+      "finished_at": "2026-09-29T21:32:22Z"
+    },
+    {
+      "run_id": "tools-n5-r1",
+      "pot": "dev",
+      "model": "claude-haiku-4-5",
+      "cost_usd": 0.0315726,
+      "finished_at": "2026-09-29T21:33:13Z"
+    },
+    {
+      "run_id": "sql-n5-r1",
+      "pot": "dev",
+      "model": "claude-haiku-4-5",
+      "cost_usd": 0.04351305,
+      "finished_at": "2026-09-29T21:36:10Z"
+    },
+    {
+      "run_id": "tools-n5-r1",
+      "pot": "dev",
+      "model": "claude-haiku-4-5",
+      "cost_usd": 0.0362508,
+      "finished_at": "2026-09-29T21:36:43Z"
+    },
+    {
+      "run_id": "sql-n10-r1",
+      "pot": "proof",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.0154569,
+      "finished_at": "2026-09-29T21:42:43Z"
+    },
+    {
+      "run_id": "tools-n10-r1",
+      "pot": "proof",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.0603998,
+      "finished_at": "2026-09-29T21:42:59Z"
+    },
+    {
+      "run_id": "sql-n5-r1",
+      "pot": "proof",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.010593,
+      "finished_at": "2026-09-29T21:43:10Z"
+    },
+    {
+      "run_id": "tools-n5-r1",
+      "pot": "proof",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.0359849,
+      "finished_at": "2026-09-29T21:43:23Z"
+    },
+    {
+      "run_id": "sql-n20-r1",
+      "pot": "proof",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.009338,
+      "finished_at": "2026-09-29T21:43:41Z"
+    },
+    {
+      "run_id": "tools-n20-r1",
+      "pot": "proof",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.1136778,
+      "finished_at": "2026-09-29T21:43:58Z"
+    },
+    {
+      "run_id": "sql-n20-r2",
+      "pot": "proof",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.011953,
+      "finished_at": "2026-09-29T21:44:09Z"
+    },
+    {
+      "run_id": "tools-n20-r2",
+      "pot": "proof",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.1403853,
+      "finished_at": "2026-09-29T21:44:29Z"
+    },
+    {
+      "run_id": "sql-n20-r3",
+      "pot": "proof",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.009293,
+      "finished_at": "2026-09-29T21:44:40Z"
+    },
+    {
+      "run_id": "tools-n20-r3",
+      "pot": "proof",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.0469851,
+      "finished_at": "2026-09-29T21:44:55Z"
+    },
+    {
+      "run_id": "sql-n40-r1",
+      "pot": "proof",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.014103,
+      "finished_at": "2026-09-29T21:45:13Z"
+    },
+    {
+      "run_id": "tools-n40-r1",
+      "pot": "proof",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.2907706,
+      "finished_at": "2026-09-29T21:45:45Z"
+    },
+    {
+      "run_id": "sql-n120-r1",
+      "pot": "showcase",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.0130205,
+      "finished_at": "2026-09-29T21:46:02Z"
+    },
+    {
+      "run_id": "tools-n120-r1",
+      "pot": "showcase",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.7139828,
+      "finished_at": "2026-09-29T21:47:02Z"
+    },
+    {
+      "run_id": "sql-n10-r1",
+      "pot": "proof",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.0139919,
+      "finished_at": "2026-09-29T22:04:29Z"
+    },
+    {
+      "run_id": "sql-n5-r1",
+      "pot": "proof",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.007623,
+      "finished_at": "2026-09-29T22:04:36Z"
+    },
+    {
+      "run_id": "sql-n20-r1",
+      "pot": "proof",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.0092505,
+      "finished_at": "2026-09-29T22:04:49Z"
+    },
+    {
+      "run_id": "sql-n20-r2",
+      "pot": "proof",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.008788,
+      "finished_at": "2026-09-29T22:04:57Z"
+    },
+    {
+      "run_id": "sql-n20-r3",
+      "pot": "proof",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.0091805,
+      "finished_at": "2026-09-29T22:05:05Z"
+    },
+    {
+      "run_id": "sql-n40-r1",
+      "pot": "proof",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.010773,
+      "finished_at": "2026-09-29T22:05:15Z"
+    },
+    {
+      "run_id": "sql-n120-r1",
+      "pot": "showcase",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.0132355,
+      "finished_at": "2026-09-29T22:05:30Z"
+    },
+    {
+      "run_id": "base-tools-lean-n10-s11-haiku",
+      "pot": "dev",
+      "model": "claude-haiku-4-5",
+      "cost_usd": 0.03561475,
+      "finished_at": "2026-09-30T00:17:25Z"
+    },
+    {
+      "run_id": "textdeadlines-sql-n10-s11-haiku",
+      "pot": "dev",
+      "model": "claude-haiku-4-5",
+      "cost_usd": 0.0468158,
+      "finished_at": "2026-09-30T00:18:05Z"
+    },
+    {
+      "run_id": "math-tools-n10-s11-haiku",
+      "pot": "dev",
+      "model": "claude-haiku-4-5",
+      "cost_usd": 0.0593913,
+      "finished_at": "2026-09-30T00:18:57Z"
+    },
+    {
+      "run_id": "base-sql-n40-s11-sonnet",
+      "pot": "p2-base",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.0190529,
+      "finished_at": "2026-09-30T00:20:51Z"
+    },
+    {
+      "run_id": "base-sql-n40-s12-sonnet",
+      "pot": "p2-base",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.0183216,
+      "finished_at": "2026-09-30T00:21:05Z"
+    },
+    {
+      "run_id": "base-sql-n120-s11-sonnet",
+      "pot": "p2-base",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.0267246,
+      "finished_at": "2026-09-30T00:21:19Z"
+    },
+    {
+      "run_id": "base-sql-n120-s12-sonnet",
+      "pot": "p2-base",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.0175104,
+      "finished_at": "2026-09-30T00:21:34Z"
+    },
+    {
+      "run_id": "base-tools-lean-n40-s11-sonnet",
+      "pot": "p2-base",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.1869283,
+      "finished_at": "2026-09-30T00:21:58Z"
+    },
+    {
+      "run_id": "base-tools-lean-n40-s12-sonnet",
+      "pot": "p2-base",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.168326,
+      "finished_at": "2026-09-30T00:22:25Z"
+    },
+    {
+      "run_id": "base-tools-lean-n120-s11-sonnet",
+      "pot": "p2-base",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.5970697,
+      "finished_at": "2026-09-30T00:23:38Z"
+    },
+    {
+      "run_id": "base-tools-lean-n120-s12-sonnet",
+      "pot": "p2-base",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.5133686,
+      "finished_at": "2026-09-30T00:24:43Z"
+    },
+    {
+      "run_id": "base-tools-n40-s11-sonnet",
+      "pot": "p2-base",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.2333217,
+      "finished_at": "2026-09-30T00:25:09Z"
+    },
+    {
+      "run_id": "base-tools-n40-s12-sonnet",
+      "pot": "p2-base",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.2796969,
+      "finished_at": "2026-09-30T00:25:34Z"
+    },
+    {
+      "run_id": "base-tools-n120-s11-sonnet",
+      "pot": "p2-base",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.3496949,
+      "finished_at": "2026-09-30T00:26:12Z"
+    },
+    {
+      "run_id": "base-tools-n120-s12-sonnet",
+      "pot": "p2-base",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.1726849,
+      "finished_at": "2026-09-30T00:26:25Z"
+    },
+    {
+      "run_id": "math-sql-n40-s11-sonnet",
+      "pot": "p2-variants",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.0217896,
+      "finished_at": "2026-09-30T00:35:47Z"
+    },
+    {
+      "run_id": "math-tools-n40-s11-sonnet",
+      "pot": "p2-variants",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.6063029,
+      "finished_at": "2026-09-30T00:36:58Z"
+    },
+    {
+      "run_id": "textdeadlines-sql-n40-s11-sonnet",
+      "pot": "p2-variants",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.058005,
+      "finished_at": "2026-09-30T00:37:18Z"
+    },
+    {
+      "run_id": "textdeadlines-sql-n40-s12-sonnet",
+      "pot": "p2-variants",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.0596194,
+      "finished_at": "2026-09-30T00:37:34Z"
+    },
+    {
+      "run_id": "textdeadlines-sql-n40-s13-sonnet",
+      "pot": "p2-variants",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.0527805,
+      "finished_at": "2026-09-30T00:37:51Z"
+    },
+    {
+      "run_id": "textdeadlines-tools-n40-s11-sonnet",
+      "pot": "p2-variants",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.2341413,
+      "finished_at": "2026-09-30T00:38:11Z"
+    },
+    {
+      "run_id": "textdeadlines-tools-n40-s12-sonnet",
+      "pot": "p2-variants",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.2024386,
+      "finished_at": "2026-09-30T00:38:37Z"
+    },
+    {
+      "run_id": "textdeadlines-tools-n40-s13-sonnet",
+      "pot": "p2-variants",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.241964,
+      "finished_at": "2026-09-30T00:39:02Z"
+    },
+    {
+      "run_id": "base-sql-n40-s11-haiku",
+      "pot": "p2-variants",
+      "model": "claude-haiku-4-5",
+      "cost_usd": 0.03653915,
+      "finished_at": "2026-09-30T00:39:34Z"
+    },
+    {
+      "run_id": "base-tools-n120-s11-sonnet",
+      "pot": "p2-base",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.6302105,
+      "finished_at": "2026-09-30T03:34:11Z"
+    },
+    {
+      "run_id": "base-tools-n120-s12-sonnet",
+      "pot": "p2-base",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.4748869,
+      "finished_at": "2026-09-30T03:34:46Z"
+    },
+    {
+      "run_id": "base-sql-n40-s12-haiku",
+      "pot": "p2-variants",
+      "model": "claude-haiku-4-5",
+      "cost_usd": 0.0375651,
+      "finished_at": "2026-09-30T03:35:18Z"
+    },
+    {
+      "run_id": "base-sql-n40-s13-haiku",
+      "pot": "p2-variants",
+      "model": "claude-haiku-4-5",
+      "cost_usd": 0.018286,
+      "finished_at": "2026-09-30T03:35:41Z"
+    },
+    {
+      "run_id": "base-tools-n40-s11-haiku",
+      "pot": "p2-variants",
+      "model": "claude-haiku-4-5",
+      "cost_usd": 0.1628394,
+      "finished_at": "2026-09-30T03:36:39Z"
+    },
+    {
+      "run_id": "base-tools-n40-s12-haiku",
+      "pot": "p2-variants",
+      "model": "claude-haiku-4-5",
+      "cost_usd": 0.1724757,
+      "finished_at": "2026-09-30T03:37:51Z"
+    },
+    {
+      "run_id": "base-tools-n40-s13-haiku",
+      "pot": "p2-variants",
+      "model": "claude-haiku-4-5",
+      "cost_usd": 0.16624755,
+      "finished_at": "2026-09-30T03:39:06Z"
+    },
+    {
+      "run_id": "base-tools-n120-s11-haiku",
+      "pot": "p2-variants",
+      "model": "claude-haiku-4-5",
+      "cost_usd": 0.3761773,
+      "finished_at": "2026-09-30T03:40:27Z"
+    },
+    {
+      "run_id": "math-sql-n120-s11-sonnet",
+      "pot": "p2-variants",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 0.0187133,
+      "finished_at": "2026-09-30T03:40:40Z"
+    },
+    {
+      "run_id": "math-tools-n120-s11-sonnet",
+      "pot": "p2-variants",
+      "model": "claude-sonnet-5-5",
+      "cost_usd": 1.6758795,
+      "finished_at": "2026-09-30T03:43:18Z"
+    }
+  ]
+}

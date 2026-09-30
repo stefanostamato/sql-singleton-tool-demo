@@ -1,0 +1,393 @@
+{
+  "schema_version": 1,
+  "run_id": "tools-n10-r1",
+  "arm": "tools",
+  "n_matters": 10,
+  "rep": 1,
+  "stage": "pilot",
+  "pot": "proof",
+  "model": "claude-sonnet-5-5",
+  "seed": 7,
+  "today": "2026-09-15",
+  "effort": "medium",
+  "latency_s": 0.15,
+  "started_at": "2026-09-29T21:42:45Z",
+  "finished_at": "2026-09-29T21:42:59Z",
+  "outcome": "answered",
+  "error": null,
+  "question": "Which active litigation matters are at risk of being neglected? A matter is at risk only if all of these are true:\n1. Its status is Open and its practice area is Litigation.\n2. It has a court deadline from 2026-09-15 to 2026-10-06, inclusive.\n3. No email dated 2026-09-01 to 2026-09-15, inclusive, was sent to or from any of the client's contacts. Emails with opposing counsel or anyone else don't count.\n4. No billable time was recorded on it dated 2026-09-01 to 2026-09-15, inclusive. Non-billable entries don't count.\nList the at-risk matters by display number (like HV-2026-0012), grouped by responsible attorney, and submit them with the submit_answer tool.",
+  "system_prompt": "You are an assistant at Harbor & Vale LLP with read-only access to the firm's systems through the tools provided. Today is 2026-09-15. Use the tools to find the answer; do not guess. When you have the final answer, call submit_answer exactly once.",
+  "tools": [
+    {
+      "name": "matters_list",
+      "description": "List matters from the firm's practice management system (Clio Manage API, GET /api/v4/matters).\n        Returns matter records with the client and its contacts, the responsible and originating attorney,\n        practice area, status, open and close dates, court and case number, custom fields and billing\n        settings. Optional filters: status (Open, Pending or Closed) and practice_area (Litigation,\n        Corporate, Employment, Intellectual Property or Real Estate). Results are paginated at 25 records\n        per page; pass page=2, 3, ... until meta.paging.next is null. meta.records is the total number of\n        matching matters. Dates are YYYY-MM-DD."
+    },
+    {
+      "name": "docket_entries",
+      "description": "List court docket entries for one matter (CourtListener docket-entries API,\n        GET /api/rest/v4/docket-entries). Takes the numeric matter id from matters_list (the id field, for\n        example 10001). Returns every entry filed on the matter's case: entry number, filing date\n        (YYYY-MM-DD), description, document number and attachments. Entries that set a court deadline also\n        carry deadline_date (YYYY-MM-DD) and deadline_type. Only litigation matters have a docket; other\n        matters return an empty list. All entries come back in one response (no pagination)."
+    },
+    {
+      "name": "mail_search",
+      "description": "Search the firm's mailbox (Microsoft Graph, GET /v1.0/me/messages). Returns messages newest\n        first with subject, body, sender, to and cc recipients, received time and flags. participants is a\n        list of email addresses; a message matches if any listed address appears in from, to or cc. after\n        and before filter on the received date, both inclusive, in YYYY-MM-DD form. Omit all filters to\n        list every message. Results are paginated at 50 messages per page; while the response has an\n        @odata.nextLink, call again with the next page number."
+    },
+    {
+      "name": "time_entries",
+      "description": "List time entries from the billing system (Clio Manage activities API, GET /api/v4/activities).\n        Each entry has the date (YYYY-MM-DD), hours, hourly rate, total, note, the user who recorded it, the\n        matter it belongs to, and whether it is non_billable or already billed. Optional filters: matter_id\n        (numeric matter id from matters_list) and after (YYYY-MM-DD, inclusive: only entries dated on or\n        after this day). Results are paginated at 100 entries per page; pass page=2, 3, ... until\n        meta.paging.next is null."
+    },
+    {
+      "name": "submit_answer",
+      "description": "Submit the final answer: the at-risk matters grouped by responsible attorney. Call exactly once."
+    }
+  ],
+  "turns": [
+    {
+      "index": 0,
+      "started_ms": 598,
+      "model_ms": 5881,
+      "tools_ms": 156,
+      "usage": {
+        "input_tokens": 4,
+        "cache_creation_input_tokens": 2370,
+        "cache_read_input_tokens": 0,
+        "output_tokens": 202
+      },
+      "context_tokens": 2374,
+      "cost_usd": 0.007953,
+      "stop_reason": "tool_use",
+      "text": "",
+      "tool_calls": [
+        {
+          "id": "toolu_012wuKfSMyzQxaRoMP5oUhMS",
+          "name": "matters_list",
+          "input": {
+            "status": "Open",
+            "practice_area": "Litigation"
+          },
+          "is_error": false,
+          "duration_ms": 155,
+          "result_bytes": 11110,
+          "result_tokens_est": 3174,
+          "preview": "{\"data\":[{\"id\":10001,\"etag\":\"\\\"4d367e0d3684\\\"\",\"display_number\":\"HV-2026-0001\",\"description\":\"Lantern Analytics v. Kimball Hargrove: landlord-tenant dispute over a commercial lease guaranty.\",\"status\":\"Open\",\"location\":\"Seattle, WA\",\"client\":{\"id\":20001,\"name\":\"Lantern Analytics\",\"type\":\"Company\",\"primary_email_address\":\"brendan.fontaine@lantern-analytics.example\",\"contacts\":[{\"id\":30001,\"name\":\"Brendan Fontaine\",\"title\":\"Head of Compliance\",\"email\":\"brendan.fontaine@lantern-analytics.example\",\"phone\":\"+1-555-985-9670\"},{\"id\":30002,\"name\":\"Gavin Lindqvist\",\"title\":\"Director of HR\",\"email\":\"gavin.lindqvist@lantern-analytics.example\",\"phone\":\"+1-555-909-1766\"}]},\"practice_area\":{\"id\":400,\"name\":\"Litigation\"},\"responsible_attorney\":{\"id\":1006,\"name\":\"James Thornbury\",\"email\":\"james.thornbury@harborvale.example\"},\"originating_attorney\":{\"id\":1006,\"name\":\"James Thornbury\",\"email\":\"james.thornbury@harborvale.example\"},\"open_date\":\"2025-09-24\",\"close_date\":null,\"billable\":true,\"billing_method\":\"hourly\",\"statute_of_limitations\":\"2028-06-19\",\"court\":{\"name\":\"U.S. District Court, Southern District of New York\",\"case_number\":\"1:26-cv-05118\"},\"custom_field_values\":[{\"field_name\":\"Retainer Held\",\"value\":\"$10,000\"},{\"field_name\":\"Referral Source\",\"value\":\"Partner network\"}],\"created_at\":\"2025-09-24T14:05:12Z\",\"updated_at\":\"2026-09-05T16:10:03Z\"},{\"id\":10002,\"etag\":\"\\\"faa58de57866\\\"\",\"display_number\":\"HV-2026-0002\",\"description\":\"Quarry Media v. Pryce Wexler: landlord-tenant dispute over a ",
+          "api_calls": [
+            {
+              "source": "matters",
+              "endpoint": "GET /api/v4/matters",
+              "params": {
+                "status": "Open",
+                "practice_area": "Litigation",
+                "page": 1,
+                "page_size": 25
+              },
+              "started_ms": 0,
+              "duration_ms": 151,
+              "bytes": 11110
+            }
+          ]
+        },
+        {
+          "id": "toolu_01Aiuc1CZh7g48Xri9eUsjhz",
+          "name": "time_entries",
+          "input": {
+            "after": "2026-09-01"
+          },
+          "is_error": false,
+          "duration_ms": 155,
+          "result_bytes": 2571,
+          "result_tokens_est": 735,
+          "preview": "{\"data\":[{\"id\":900043,\"etag\":\"\\\"4380111f\\\"\",\"type\":\"TimeEntry\",\"date\":\"2026-09-14\",\"quantity_in_hours\":1.2,\"rounded_quantity_in_hours\":1.2,\"price\":610.0,\"total\":0.0,\"note\":\"Drafted response brief\",\"non_billable\":true,\"billed\":false,\"matter\":{\"id\":10009,\"display_number\":\"HV-2026-0009\"},\"user\":{\"id\":1005,\"name\":\"Elena Kowalczyk\"},\"activity_description\":{\"name\":\"Client call\"},\"updated_at\":\"2026-09-14T21:10:49Z\"},{\"id\":900014,\"etag\":\"\\\"d9edb349\\\"\",\"type\":\"TimeEntry\",\"date\":\"2026-09-12\",\"quantity_in_hours\":0.3,\"rounded_quantity_in_hours\":0.3,\"price\":425.0,\"total\":127.5,\"note\":\"Hearing preparation\",\"non_billable\":false,\"billed\":false,\"matter\":{\"id\":10003,\"display_number\":\"HV-2026-0003\"},\"user\":{\"id\":1001,\"name\":\"Dana Whitfield\"},\"activity_description\":{\"name\":\"Legal research\"},\"updated_at\":\"2026-09-12T19:40:08Z\"},{\"id\":900016,\"etag\":\"\\\"f51abff8\\\"\",\"type\":\"TimeEntry\",\"date\":\"2026-09-08\",\"quantity_in_hours\":2.0,\"rounded_quantity_in_hours\":2.0,\"price\":575.0,\"total\":1150.0,\"note\":\"Emails with opposing counsel re scheduling\",\"non_billable\":false,\"billed\":false,\"matter\":{\"id\":10003,\"display_number\":\"HV-2026-0003\"},\"user\":{\"id\":1006,\"name\":\"James Thornbury\"},\"activity_description\":{\"name\":\"Court appearance\"},\"updated_at\":\"2026-09-08T20:13:12Z\"},{\"id\":900042,\"etag\":\"\\\"a913e58d\\\"\",\"type\":\"TimeEntry\",\"date\":\"2026-09-05\",\"quantity_in_hours\":3.0,\"rounded_quantity_in_hours\":3.0,\"price\":610.0,\"total\":0.0,\"note\":\"Emails with opposing counsel re scheduling\",\"non_billable\":true,\"billed\":false,\"matt",
+          "api_calls": [
+            {
+              "source": "billing",
+              "endpoint": "GET /api/v4/activities",
+              "params": {
+                "after": "2026-09-01",
+                "page": 1,
+                "page_size": 100
+              },
+              "started_ms": 0,
+              "duration_ms": 151,
+              "bytes": 2571
+            }
+          ]
+        },
+        {
+          "id": "toolu_01GG2rNmY5pM7ojGmKo8x6NW",
+          "name": "mail_search",
+          "input": {
+            "after": "2026-09-01",
+            "before": "2026-09-15"
+          },
+          "is_error": false,
+          "duration_ms": 155,
+          "result_bytes": 9297,
+          "result_tokens_est": 2656,
+          "preview": "{\"@odata.context\":\"https://graph.microsoft.com/v1.0/$metadata#users('me')/messages\",\"value\":[{\"id\":\"AAMkAGEcd3310bf1000\",\"categories\":[],\"receivedDateTime\":\"2026-09-15T12:25:15Z\",\"sentDateTime\":\"2026-09-15T12:25:06Z\",\"hasAttachments\":false,\"internetMessageId\":\"<4a0b8a70@mail.harborvale.example>\",\"subject\":\"RE: [HV-2026-0003] Draft stipulation\",\"bodyPreview\":\"Hi Deepa, The court's scheduling order sets the next deadline, and I want to make sure we are on track.\",\"importance\":\"normal\",\"parentFolderId\":\"AQMkAGE8b5782\",\"conversationId\":\"AAQkAGE625c478e5a\",\"isRead\":true,\"webLink\":\"https://outlook.example/owa/?ItemID=AAMkAGEcd331\",\"body\":{\"contentType\":\"html\",\"content\":\"<html><body><p>Hi Deepa,</p><p>The court&#x27;s scheduling order sets the next deadline, and I want to make sure we are on track.</p></body></html>\"},\"sender\":{\"emailAddress\":{\"name\":\"Dana Whitfield\",\"address\":\"dana.whitfield@harborvale.example\"}},\"from\":{\"emailAddress\":{\"name\":\"Dana Whitfield\",\"address\":\"dana.whitfield@harborvale.example\"}},\"toRecipients\":[{\"emailAddress\":{\"name\":\"Deepa Ueda\",\"address\":\"deepa.ueda@ironbridge-biotech.example\"}},{\"emailAddress\":{\"name\":\"Rosa Lindqvist\",\"address\":\"rosa.lindqvist@ironbridge-biotech.example\"}},{\"emailAddress\":{\"name\":\"Farah Zielinski\",\"address\":\"farah.zielinski@ironbridge-biotech.example\"}}],\"ccRecipients\":[{\"emailAddress\":{\"name\":\"Marcus Oyelaran\",\"address\":\"marcus.oyelaran@harborvale.example\"}}]},{\"id\":\"AAMkAGEe3b5e20550ad\",\"categories\":[],\"receivedDateTime\":\"2026-09-",
+          "api_calls": [
+            {
+              "source": "mail",
+              "endpoint": "GET /v1.0/me/messages",
+              "params": {
+                "after": "2026-09-01",
+                "before": "2026-09-15",
+                "page": 1,
+                "page_size": 50
+              },
+              "started_ms": 0,
+              "duration_ms": 151,
+              "bytes": 9297
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "started_ms": 6636,
+      "model_ms": 3760,
+      "tools_ms": 160,
+      "usage": {
+        "input_tokens": 2,
+        "cache_creation_input_tokens": 11029,
+        "cache_read_input_tokens": 2370,
+        "output_tokens": 447
+      },
+      "context_tokens": 13401,
+      "cost_usd": 0.032521,
+      "stop_reason": "tool_use",
+      "text": "",
+      "tool_calls": [
+        {
+          "id": "toolu_01VgQ7vxA5vgbGnwJPfRdRx8",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10004
+          },
+          "is_error": false,
+          "duration_ms": 159,
+          "result_bytes": 1472,
+          "result_tokens_est": 421,
+          "preview": "{\"count\":3,\"next\":null,\"results\":[{\"id\":500020,\"docket_id\":7010004,\"court\":\"UDCWDW\",\"case_number\":\"2:26-cv-03264\",\"entry_number\":1,\"date_filed\":\"2026-06-26\",\"description\":\"CLOSE OF FACT DISCOVERY filed by counsel for Tidewater Holdings. Per the court's order, the corresponding deadline is set for August 22, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010004/1/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Exhibit A\"}],\"recap_documents\":[{\"id\":5000200,\"is_available\":false,\"page_count\":13}],\"deadline_date\":\"2026-08-22\",\"deadline_type\":\"Close of fact discovery\"},{\"id\":500021,\"docket_id\":7010004,\"court\":\"UDCWDW\",\"case_number\":\"2:26-cv-03264\",\"entry_number\":2,\"date_filed\":\"2026-07-29\",\"description\":\"ORDER setting Initial Scheduling Conference. Parties shall submit a joint status report seven days before the conference.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010004/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000210,\"is_available\":false,\"page_count\":3}]},{\"id\":500022,\"docket_id\":7010004,\"court\":\"UDCWDW\",\"case_number\":\"2:26-cv-03264\",\"entry_number\":3,\"date_filed\":\"2026-09-10\",\"description\":\"REPLY BRIEF filed by counsel for Lockhart Fenwick. Per the court's order, the corresponding deadline is set for October 07, 2026.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010004/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000220,\"is_available\":false,\"page_count\":3}],\"deadline_date\":\"2026-10-07\",\"deadline_type\":\"Reply brief due\"}]}",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10004
+              },
+              "started_ms": 0,
+              "duration_ms": 152,
+              "bytes": 1472
+            }
+          ]
+        },
+        {
+          "id": "toolu_0132HaXHVSEHhQpRxfZra5Bk",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10005
+          },
+          "is_error": false,
+          "duration_ms": 159,
+          "result_bytes": 1610,
+          "result_tokens_est": 460,
+          "preview": "{\"count\":3,\"next\":null,\"results\":[{\"id\":500023,\"docket_id\":7010005,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-02964\",\"entry_number\":1,\"date_filed\":\"2026-07-31\",\"description\":\"REPLY BRIEF filed by counsel for Brightwater Freight. Per the court's order, the corresponding deadline is set for November 08, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010005/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000230,\"is_available\":false,\"page_count\":10}],\"deadline_date\":\"2026-11-08\",\"deadline_type\":\"Reply brief due\"},{\"id\":500024,\"docket_id\":7010005,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-02964\",\"entry_number\":2,\"date_filed\":\"2026-09-02\",\"description\":\"EXPERT DISCLOSURE filed by counsel for Ashby Montague. Per the court's order, the corresponding deadline is set for November 07, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010005/2/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Memorandum\"}],\"recap_documents\":[{\"id\":5000240,\"is_available\":false,\"page_count\":3}],\"deadline_date\":\"2026-11-07\",\"deadline_type\":\"Expert disclosure deadline\"},{\"id\":500025,\"docket_id\":7010005,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-02964\",\"entry_number\":3,\"date_filed\":\"2026-09-07\",\"description\":\"EXPERT DISCLOSURE filed by counsel for Brightwater Freight. Per the court's order, the corresponding deadline is set for October 02, 2026.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010005/3/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Exhibit A\"}],\"recap_documents\":[{\"id\":5000250,\"is_a",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10005
+              },
+              "started_ms": 0,
+              "duration_ms": 152,
+              "bytes": 1610
+            }
+          ]
+        },
+        {
+          "id": "toolu_01XoQUdC3cVKitA3qqiETTbm",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10006
+          },
+          "is_error": false,
+          "duration_ms": 159,
+          "result_bytes": 3362,
+          "result_tokens_est": 961,
+          "preview": "{\"count\":7,\"next\":null,\"results\":[{\"id\":500026,\"docket_id\":7010006,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-03853\",\"entry_number\":1,\"date_filed\":\"2026-05-18\",\"description\":\"RESPONSE TO MOTION TO COMPEL filed by counsel for Wexford Robotics. Per the court's order, the corresponding deadline is set for September 04, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010006/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000260,\"is_available\":false,\"page_count\":18}],\"deadline_date\":\"2026-09-04\",\"deadline_type\":\"Response to motion to compel due\"},{\"id\":500027,\"docket_id\":7010006,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-03853\",\"entry_number\":2,\"date_filed\":\"2026-06-03\",\"description\":\"ORDER setting Initial Scheduling Conference. Parties shall submit a joint status report seven days before the conference.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010006/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000270,\"is_available\":false,\"page_count\":21}]},{\"id\":500028,\"docket_id\":7010006,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-03853\",\"entry_number\":3,\"date_filed\":\"2026-07-10\",\"description\":\"CERTIFICATE OF SERVICE re Plaintiff's First Set of Requests for Production. Served by email on all counsel of record.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010006/3/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Declaration\"}],\"recap_documents\":[{\"id\":5000280,\"is_available\":false,\"page_count\":7}]},{\"id\":500029,\"docket_id\":7010006,\"court\":\"UDCSDNY\",\"case_number\":\"1:26-cv-03853\",\"e",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10006
+              },
+              "started_ms": 0,
+              "duration_ms": 152,
+              "bytes": 3362
+            }
+          ]
+        },
+        {
+          "id": "toolu_01AXFF9WRijrAigy8SRxm89k",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10007
+          },
+          "is_error": false,
+          "duration_ms": 159,
+          "result_bytes": 1780,
+          "result_tokens_est": 509,
+          "preview": "{\"count\":4,\"next\":null,\"results\":[{\"id\":500033,\"docket_id\":7010007,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-05697\",\"entry_number\":1,\"date_filed\":\"2026-06-01\",\"description\":\"CLOSE OF FACT DISCOVERY filed by counsel for Mercer Rourke. Per the court's order, the corresponding deadline is set for October 05, 2026.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010007/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000330,\"is_available\":false,\"page_count\":29}],\"deadline_date\":\"2026-10-05\",\"deadline_type\":\"Close of fact discovery\"},{\"id\":500034,\"docket_id\":7010007,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-05697\",\"entry_number\":2,\"date_filed\":\"2026-06-18\",\"description\":\"MOTION IN LIMINE filed by counsel for Mercer Rourke. Per the court's order, the corresponding deadline is set for September 17, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010007/2/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000340,\"is_available\":false,\"page_count\":10}],\"deadline_date\":\"2026-09-17\",\"deadline_type\":\"Motion in limine deadline\"},{\"id\":500035,\"docket_id\":7010007,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-05697\",\"entry_number\":3,\"date_filed\":\"2026-08-11\",\"description\":\"REPLY in support of motion to compel, with declaration of counsel and exhibits A through D.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010007/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000350,\"is_available\":false,\"page_count\":35}]},{\"id\":500036,\"docket_id\":7010007,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-05697\",\"entry_number\":4,\"da",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10007
+              },
+              "started_ms": 0,
+              "duration_ms": 151,
+              "bytes": 1780
+            }
+          ]
+        },
+        {
+          "id": "toolu_019pJrGwKSzLJ5kXJjY4okht",
+          "name": "docket_entries",
+          "input": {
+            "matter_id": 10009
+          },
+          "is_error": false,
+          "duration_ms": 160,
+          "result_bytes": 2266,
+          "result_tokens_est": 647,
+          "preview": "{\"count\":5,\"next\":null,\"results\":[{\"id\":500037,\"docket_id\":7010009,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-01088\",\"entry_number\":1,\"date_filed\":\"2026-05-26\",\"description\":\"NOTICE of Deposition of a corporate designee, to be taken remotely. Court reporter has been retained.\",\"document_number\":\"1\",\"absolute_url\":\"/docket/7010009/1/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000370,\"is_available\":false,\"page_count\":18}]},{\"id\":500038,\"docket_id\":7010009,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-01088\",\"entry_number\":2,\"date_filed\":\"2026-07-29\",\"description\":\"MOTION IN LIMINE filed by counsel for Ulrich Penhale. Per the court's order, the corresponding deadline is set for September 16, 2026.\",\"document_number\":\"2\",\"absolute_url\":\"/docket/7010009/2/\",\"attachments\":[{\"attachment_number\":1,\"description\":\"Declaration\"}],\"recap_documents\":[{\"id\":5000380,\"is_available\":false,\"page_count\":1}],\"deadline_date\":\"2026-09-16\",\"deadline_type\":\"Motion in limine deadline\"},{\"id\":500039,\"docket_id\":7010009,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-01088\",\"entry_number\":3,\"date_filed\":\"2026-08-01\",\"description\":\"NOTICE of Appearance filed by counsel for Defendant. Certificate of service attached.\",\"document_number\":\"3\",\"absolute_url\":\"/docket/7010009/3/\",\"attachments\":[],\"recap_documents\":[{\"id\":5000390,\"is_available\":false,\"page_count\":15}]},{\"id\":500040,\"docket_id\":7010009,\"court\":\"SCCCA\",\"case_number\":\"3:26-cv-01088\",\"entry_number\":4,\"date_filed\":\"2026-08-26\",\"description\":\"EXPERT DISCLOSURE filed b",
+          "api_calls": [
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10009
+              },
+              "started_ms": 0,
+              "duration_ms": 151,
+              "bytes": 2266
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "started_ms": 10558,
+      "model_ms": 3269,
+      "tools_ms": 0,
+      "usage": {
+        "input_tokens": 2,
+        "cache_creation_input_tokens": 5133,
+        "cache_read_input_tokens": 13399,
+        "output_tokens": 441
+      },
+      "context_tokens": 18534,
+      "cost_usd": 0.019926,
+      "stop_reason": "tool_use",
+      "text": "",
+      "tool_calls": [
+        {
+          "id": "toolu_01AUcC7iG411pVMQaHwyMGHU",
+          "name": "submit_answer",
+          "input": {
+            "at_risk": [
+              {
+                "attorney": "Priya Raman",
+                "matters": [
+                  "HV-2026-0005"
+                ]
+              },
+              {
+                "attorney": "Tomás Ibarra",
+                "matters": [
+                  "HV-2026-0006"
+                ]
+              },
+              {
+                "attorney": "Marcus Oyelaran",
+                "matters": [
+                  "HV-2026-0007"
+                ]
+              },
+              {
+                "attorney": "Elena Kowalczyk",
+                "matters": [
+                  "HV-2026-0009"
+                ]
+              }
+            ],
+            "notes": "Checked 8 open litigation matters. HV-0001 and HV-0003 had client-contact emails. HV-0002 and HV-0003 had billable time. HV-0004's only in-window deadline is 10-07, which is outside the range. The remaining four (0005, 0006, 0007, 0009) each have a deadline in the window, no client-contact email and no billable time. HV-0009 only had non-billable time, and its 9/8 email went to opposing counsel."
+          },
+          "is_error": false,
+          "duration_ms": 0,
+          "result_bytes": 16,
+          "result_tokens_est": 5,
+          "preview": "Answer recorded.",
+          "api_calls": []
+        }
+      ]
+    }
+  ],
+  "answer": {
+    "at_risk": [
+      {
+        "attorney": "Priya Raman",
+        "matters": [
+          "HV-2026-0005"
+        ]
+      },
+      {
+        "attorney": "Tomás Ibarra",
+        "matters": [
+          "HV-2026-0006"
+        ]
+      },
+      {
+        "attorney": "Marcus Oyelaran",
+        "matters": [
+          "HV-2026-0007"
+        ]
+      },
+      {
+        "attorney": "Elena Kowalczyk",
+        "matters": [
+          "HV-2026-0009"
+        ]
+      }
+    ],
+    "notes": "Checked 8 open litigation matters. HV-0001 and HV-0003 had client-contact emails. HV-0002 and HV-0003 had billable time. HV-0004's only in-window deadline is 10-07, which is outside the range. The remaining four (0005, 0006, 0007, 0009) each have a deadline in the window, no client-contact email and no billable time. HV-0009 only had non-billable time, and its 9/8 email went to opposing counsel."
+  },
+  "totals": {
+    "turns": 3,
+    "tool_calls": 9,
+    "api_calls": 8,
+    "input_tokens": 8,
+    "cache_creation_input_tokens": 18532,
+    "cache_read_input_tokens": 15769,
+    "output_tokens": 1090,
+    "context_peak_tokens": 18534,
+    "result_bytes": 33484,
+    "cost_usd": 0.0604,
+    "wall_ms": 13933,
+    "model_ms": 12910,
+    "tools_ms": 316
+  },
+  "score": {
+    "expected_count": 4,
+    "submitted_count": 4,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "grouping_exact": true,
+    "false_positives": [],
+    "false_negatives": []
+  }
+}

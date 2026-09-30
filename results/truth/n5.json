@@ -1,0 +1,21 @@
+{
+  "n_matters": 5,
+  "seed": 7,
+  "today": "2026-09-15",
+  "at_risk": [
+    {
+      "attorney": "Priya Raman",
+      "matters": [
+        "HV-2026-0003"
+      ]
+    }
+  ],
+  "traps": {
+    "deadline_just_outside_window": 1,
+    "opposing_counsel_email_only": 0,
+    "non_billable_time_only": 0,
+    "client_email_just_outside_window": 0,
+    "closed_with_deadline": 0,
+    "non_litigation_with_deadline": 0
+  }
+}

@@ -1,0 +1,762 @@
+{
+  "schema_version": 1,
+  "run_id": "base-sql-n40-s13-haiku",
+  "arm": "sql",
+  "variant": "base",
+  "profile": "v2",
+  "n_matters": 40,
+  "rep": 1,
+  "stage": "p2-variants",
+  "pot": "p2-variants",
+  "model": "claude-haiku-4-5",
+  "seed": 13,
+  "today": "2026-09-15",
+  "effort": null,
+  "latency_s": 0.15,
+  "started_at": "2026-09-30T03:35:19Z",
+  "finished_at": "2026-09-30T03:35:41Z",
+  "outcome": "answered",
+  "error": null,
+  "question": "Which active litigation matters are at risk of being neglected? A matter is at risk only if all of these are true:\n1. Its status is Open and its practice area is Litigation.\n2. It has a court deadline from 2026-09-15 to 2026-10-06, inclusive.\n3. No email dated 2026-09-01 to 2026-09-15, inclusive, was sent to or from any of the client's contacts. Emails with opposing counsel or anyone else don't count.\n4. No billable time was recorded on it dated 2026-09-01 to 2026-09-15, inclusive. Non-billable entries don't count.\nList the at-risk matters by display number (like HV-2026-0012), grouped by responsible attorney, and submit them with the submit_answer tool.",
+  "system_prompt": "Run 7e3d7640b7a33b6c. You are an assistant at Harbor & Vale LLP with read-only access to the firm's systems through the tools provided. Today is 2026-09-15. Use the tools to find the answer; do not guess. When you have the final answer, call submit_answer exactly once.",
+  "tools": [
+    {
+      "name": "describe_schema",
+      "description": "Describe the tables and columns available to sql_query, with a one-line meaning for each and the\n        join keys between tables. Call this first."
+    },
+    {
+      "name": "sql_query",
+      "description": "Run one read-only SQL query (DuckDB dialect) over the firm's matters, client contacts, court docket\n        entries, emails and time entries. Accepts exactly one statement starting with SELECT, WITH, DESCRIBE\n        or SHOW. Returns at most 200 rows as a pipe-separated table with a header line and a final row\n        count line. If the query fails, the error message is returned so you can fix the query. The data is\n        loaded once per session, on the first query, so later queries are fast. Use describe_schema to see\n        the tables."
+    },
+    {
+      "name": "submit_answer",
+      "description": "Submit the final answer: the at-risk matters grouped by responsible attorney. Call exactly once."
+    }
+  ],
+  "turns": [
+    {
+      "index": 0,
+      "started_ms": 416,
+      "model_ms": 2968,
+      "retries": 0,
+      "retry_wait_ms": 0,
+      "tools_ms": 3,
+      "usage": {
+        "input_tokens": 1255,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "output_tokens": 57
+      },
+      "context_tokens": 1255,
+      "cost_usd": 0.00154,
+      "stop_reason": "tool_use",
+      "text": "I'll help you identify the at-risk litigation matters. Let me start by understanding the schema.",
+      "tool_calls": [
+        {
+          "id": "toolu_019H5VqyLfDVCXDNnuGcNX1J",
+          "name": "describe_schema",
+          "input": {},
+          "is_error": false,
+          "duration_ms": 3,
+          "result_bytes": 1862,
+          "result_tokens_est": 532,
+          "preview": "Tables (DuckDB SQL). Dates are DATE values, compare with e.g. date '2026-09-15'.\n\nmatters(matter_id, display_number, description, status, practice_area, responsible_attorney,\n        responsible_attorney_email, client_id, client_name, open_date DATE, case_number)\n  One row per matter. status is Open, Pending or Closed. practice_area is Litigation, Corporate,\n  Employment, Intellectual Property or Real Estate. case_number is set for litigation matters only.\n  display_number looks like HV-2026-0012.\nclient_contacts(client_id, matter_id, name, email)\n  The client's contact people for a matter. Join on matter_id (or client_id).\ndocket_entries(entry_id, matter_id, case_number, entry_number, date_filed DATE, description,\n               deadline_date DATE, deadline_type)\n  Court docket entries, litigation matters only. deadline_date and deadline_type are NULL unless the\n  entry sets a court deadline. Join on matter_id.\nemails(message_id, conversation_id, subject, received_at TIMESTAMP, received_date DATE, from_email,\n       from_name, body_preview)\n  One row per email in the firm mailbox. Subjects of matter emails contain the display number in\n  brackets, for example [HV-2026-0012]; some emails belong to no matter. Emails are not linked to\n  matters directly: link them through email_participants and client_contacts.email.\nemail_participants(message_id, email, role)\n  One row per address on an email. role is 'from', 'to' or 'cc'. Join on message_id.\ntime_entries(entry_id, matter_id, ",
+          "api_calls": [],
+          "load_ms": 0
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "started_ms": 3388,
+      "model_ms": 4921,
+      "retries": 0,
+      "retry_wait_ms": 0,
+      "tools_ms": 811,
+      "usage": {
+        "input_tokens": 1835,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "output_tokens": 780
+      },
+      "context_tokens": 1835,
+      "cost_usd": 0.005735,
+      "stop_reason": "tool_use",
+      "text": "Now let me query the data to identify at-risk matters. I need to:\n\n1. Find all Open Litigation matters\n2. Check for court deadlines between 2026-09-15 and 2026-10-06\n3. Check for emails to/from client contacts between 2026-09-01 and 2026-09-15\n4. Check for billable time entries between 2026-09-01 and 2026-09-15",
+      "tool_calls": [
+        {
+          "id": "toolu_01KLaQvpEJptqdCMthYjtJLa",
+          "name": "sql_query",
+          "input": {
+            "sql": "\nWITH litigation_matters AS (\n  SELECT \n    m.matter_id,\n    m.display_number,\n    m.responsible_attorney,\n    m.status,\n    m.practice_area\n  FROM matters m\n  WHERE m.status = 'Open' AND m.practice_area = 'Litigation'\n),\nmatters_with_deadlines AS (\n  SELECT DISTINCT lm.matter_id, lm.display_number, lm.responsible_attorney\n  FROM litigation_matters lm\n  JOIN docket_entries de ON lm.matter_id = de.matter_id\n  WHERE de.deadline_date >= date '2026-09-15' \n    AND de.deadline_date <= date '2026-10-06'\n    AND de.deadline_type IS NOT NULL\n),\nclient_contacts_for_matters AS (\n  SELECT DISTINCT mwd.matter_id, mwd.display_number, mwd.responsible_attorney, cc.email\n  FROM matters_with_deadlines mwd\n  JOIN client_contacts cc ON mwd.matter_id = cc.matter_id\n),\nemails_to_client_contacts AS (\n  SELECT DISTINCT ccfm.matter_id, ccfm.display_number, ccfm.responsible_attorney\n  FROM client_contacts_for_matters ccfm\n  JOIN email_participants ep ON ccfm.email = ep.email\n  JOIN emails e ON ep.message_id = e.message_id\n  WHERE e.received_date >= date '2026-09-01' \n    AND e.received_date <= date '2026-09-15'\n),\nbillable_time_entries AS (\n  SELECT DISTINCT mwd.matter_id, mwd.display_number, mwd.responsible_attorney\n  FROM matters_with_deadlines mwd\n  JOIN time_entries te ON mwd.matter_id = te.matter_id\n  WHERE te.date >= date '2026-09-01' \n    AND te.date <= date '2026-09-15'\n    AND te.non_billable = FALSE\n),\nat_risk_matters AS (\n  SELECT DISTINCT mwd.matter_id, mwd.display_number, mwd.responsible_attorney\n  FROM matters_with_deadlines mwd\n  WHERE mwd.matter_id NOT IN (SELECT matter_id FROM emails_to_client_contacts)\n    AND mwd.matter_id NOT IN (SELECT matter_id FROM billable_time_entries)\n)\nSELECT DISTINCT display_number, responsible_attorney\nFROM at_risk_matters\nORDER BY responsible_attorney, display_number\n"
+          },
+          "is_error": false,
+          "duration_ms": 811,
+          "result_bytes": 316,
+          "result_tokens_est": 90,
+          "preview": "display_number | responsible_attorney\nHV-2026-0040 | Dana Whitfield\nHV-2026-0002 | Marcus Oyelaran\nHV-2026-0017 | Marcus Oyelaran\nHV-2026-0022 | Marcus Oyelaran\nHV-2026-0031 | Marcus Oyelaran\nHV-2026-0037 | Marcus Oyelaran\nHV-2026-0010 | Priya Raman\nHV-2026-0008 | Tomás Ibarra\nHV-2026-0012 | Tomás Ibarra\n(9 rows)",
+          "api_calls": [
+            {
+              "source": "matters",
+              "endpoint": "GET /api/v4/matters",
+              "params": {
+                "page": 1,
+                "page_size": 25
+              },
+              "started_ms": 0,
+              "duration_ms": 150,
+              "bytes": 33972
+            },
+            {
+              "source": "mail",
+              "endpoint": "GET /v1.0/me/messages",
+              "params": {
+                "page": 1,
+                "page_size": 50
+              },
+              "started_ms": 0,
+              "duration_ms": 151,
+              "bytes": 56860
+            },
+            {
+              "source": "billing",
+              "endpoint": "GET /api/v4/activities",
+              "params": {
+                "page": 1,
+                "page_size": 100
+              },
+              "started_ms": 0,
+              "duration_ms": 152,
+              "bytes": 41385
+            },
+            {
+              "source": "matters",
+              "endpoint": "GET /api/v4/matters",
+              "params": {
+                "page": 2,
+                "page_size": 25
+              },
+              "started_ms": 151,
+              "duration_ms": 151,
+              "bytes": 18929
+            },
+            {
+              "source": "mail",
+              "endpoint": "GET /v1.0/me/messages",
+              "params": {
+                "page": 2,
+                "page_size": 50
+              },
+              "started_ms": 152,
+              "duration_ms": 150,
+              "bytes": 58409
+            },
+            {
+              "source": "billing",
+              "endpoint": "GET /api/v4/activities",
+              "params": {
+                "page": 2,
+                "page_size": 100
+              },
+              "started_ms": 153,
+              "duration_ms": 151,
+              "bytes": 41476
+            },
+            {
+              "source": "mail",
+              "endpoint": "GET /v1.0/me/messages",
+              "params": {
+                "page": 3,
+                "page_size": 50
+              },
+              "started_ms": 303,
+              "duration_ms": 151,
+              "bytes": 57625
+            },
+            {
+              "source": "billing",
+              "endpoint": "GET /api/v4/activities",
+              "params": {
+                "page": 3,
+                "page_size": 100
+              },
+              "started_ms": 303,
+              "duration_ms": 151,
+              "bytes": 10480
+            },
+            {
+              "source": "mail",
+              "endpoint": "GET /v1.0/me/messages",
+              "params": {
+                "page": 4,
+                "page_size": 50
+              },
+              "started_ms": 454,
+              "duration_ms": 150,
+              "bytes": 40215
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10001
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 2341
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10002
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 3372
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10003
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 3540
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10004
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 2547
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10005
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 1634
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10006
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 1441
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10007
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 1917
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10008
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 1500
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10009
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 3575
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10010
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 1999
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10011
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 3688
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10012
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 2299
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10013
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 2439
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10014
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 1505
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10015
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 36
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10016
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 3372
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10017
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 2396
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10018
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 3225
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10019
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 36
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10020
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 2319
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10021
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 2120
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10022
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 1527
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10023
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 36
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10024
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 3302
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10025
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 3591
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10026
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 1917
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10027
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 1551
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10028
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 36
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10029
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 36
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10030
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 1522
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10031
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 2411
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10032
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 36
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10033
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 36
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10034
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 1581
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10035
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 2292
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10036
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 2031
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10037
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 2706
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10038
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 2988
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10039
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 2683
+            },
+            {
+              "source": "docket",
+              "endpoint": "GET /api/rest/v4/docket-entries",
+              "params": {
+                "matter_id": 10040
+              },
+              "started_ms": 605,
+              "duration_ms": 151,
+              "bytes": 1772
+            }
+          ],
+          "load_ms": 40
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "started_ms": 9122,
+      "model_ms": 3460,
+      "retries": 0,
+      "retry_wait_ms": 0,
+      "tools_ms": 10,
+      "usage": {
+        "input_tokens": 2785,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "output_tokens": 516
+      },
+      "context_tokens": 2785,
+      "cost_usd": 0.005365,
+      "stop_reason": "tool_use",
+      "text": "Perfect! I've identified the at-risk litigation matters. Let me verify this data is correct by double-checking a couple of these matters to ensure they meet all criteria:",
+      "tool_calls": [
+        {
+          "id": "toolu_01R1RDiRwTbzmDhYXq4cUwYj",
+          "name": "sql_query",
+          "input": {
+            "sql": "\n-- Verify one of the at-risk matters (HV-2026-0040)\nSELECT \n  m.display_number,\n  m.status,\n  m.practice_area,\n  m.responsible_attorney,\n  de.deadline_date,\n  COUNT(DISTINCT CASE WHEN e.received_date >= date '2026-09-01' AND e.received_date <= date '2026-09-15' THEN e.message_id END) as emails_in_range,\n  COUNT(DISTINCT CASE WHEN te.date >= date '2026-09-01' AND te.date <= date '2026-09-15' AND te.non_billable = FALSE THEN te.entry_id END) as billable_entries_in_range\nFROM matters m\nLEFT JOIN docket_entries de ON m.matter_id = de.matter_id AND de.deadline_date >= date '2026-09-15' AND de.deadline_date <= date '2026-10-06'\nLEFT JOIN client_contacts cc ON m.matter_id = cc.matter_id\nLEFT JOIN email_participants ep ON cc.email = ep.email\nLEFT JOIN emails e ON ep.message_id = e.message_id AND e.received_date >= date '2026-09-01' AND e.received_date <= date '2026-09-15'\nLEFT JOIN time_entries te ON m.matter_id = te.matter_id AND te.date >= date '2026-09-01' AND te.date <= date '2026-09-15' AND te.non_billable = FALSE\nWHERE m.display_number = 'HV-2026-0040'\nGROUP BY m.display_number, m.status, m.practice_area, m.responsible_attorney, de.deadline_date\n"
+          },
+          "is_error": false,
+          "duration_ms": 9,
+          "result_bytes": 204,
+          "result_tokens_est": 58,
+          "preview": "display_number | status | practice_area | responsible_attorney | deadline_date | emails_in_range | billable_entries_in_range\nHV-2026-0040 | Open | Litigation | Dana Whitfield | 2026-09-18 | 0 | 0\n(1 rows)",
+          "api_calls": [],
+          "load_ms": 0
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "started_ms": 12592,
+      "model_ms": 4973,
+      "retries": 0,
+      "retry_wait_ms": 0,
+      "tools_ms": 0,
+      "usage": {
+        "input_tokens": 3386,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "output_tokens": 452
+      },
+      "context_tokens": 3386,
+      "cost_usd": 0.005646,
+      "stop_reason": "tool_use",
+      "text": "Excellent! The verification confirms that HV-2026-0040 meets all criteria:\n- Status: Open, Practice Area: Litigation ✓\n- Has a court deadline on 2026-09-18 (within range 2026-09-15 to 2026-10-06) ✓\n- No emails to/from client contacts in the range 2026-09-01 to 2026-09-15 ✓\n- No billable time entries in the same range ✓\n\nNow let me format the final answer:",
+      "tool_calls": [
+        {
+          "id": "toolu_011EeprtYEuBEYELEGbcmBPh",
+          "name": "submit_answer",
+          "input": {
+            "at_risk": [
+              {
+                "attorney": "Dana Whitfield",
+                "matters": [
+                  "HV-2026-0040"
+                ]
+              },
+              {
+                "attorney": "Marcus Oyelaran",
+                "matters": [
+                  "HV-2026-0002",
+                  "HV-2026-0017",
+                  "HV-2026-0022",
+                  "HV-2026-0031",
+                  "HV-2026-0037"
+                ]
+              },
+              {
+                "attorney": "Priya Raman",
+                "matters": [
+                  "HV-2026-0010"
+                ]
+              },
+              {
+                "attorney": "Tomás Ibarra",
+                "matters": [
+                  "HV-2026-0008",
+                  "HV-2026-0012"
+                ]
+              }
+            ],
+            "notes": "Identified at-risk matters by filtering: (1) Open Litigation matters, (2) with court deadlines between 2026-09-15 and 2026-10-06 inclusive, (3) with no emails sent to/from any client contacts during 2026-09-01 to 2026-09-15 inclusive, and (4) with no billable time entries during the same period. Found 9 at-risk matters across 4 attorneys."
+          },
+          "is_error": false,
+          "duration_ms": 0,
+          "result_bytes": 16,
+          "result_tokens_est": 5,
+          "preview": "Answer recorded.",
+          "api_calls": []
+        }
+      ]
+    }
+  ],
+  "answer": {
+    "at_risk": [
+      {
+        "attorney": "Dana Whitfield",
+        "matters": [
+          "HV-2026-0040"
+        ]
+      },
+      {
+        "attorney": "Marcus Oyelaran",
+        "matters": [
+          "HV-2026-0002",
+          "HV-2026-0017",
+          "HV-2026-0022",
+          "HV-2026-0031",
+          "HV-2026-0037"
+        ]
+      },
+      {
+        "attorney": "Priya Raman",
+        "matters": [
+          "HV-2026-0010"
+        ]
+      },
+      {
+        "attorney": "Tomás Ibarra",
+        "matters": [
+          "HV-2026-0008",
+          "HV-2026-0012"
+        ]
+      }
+    ],
+    "notes": "Identified at-risk matters by filtering: (1) Open Litigation matters, (2) with court deadlines between 2026-09-15 and 2026-10-06 inclusive, (3) with no emails sent to/from any client contacts during 2026-09-01 to 2026-09-15 inclusive, and (4) with no billable time entries during the same period. Found 9 at-risk matters across 4 attorneys."
+  },
+  "totals": {
+    "turns": 4,
+    "tool_calls": 4,
+    "api_calls": 49,
+    "input_tokens": 9261,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "output_tokens": 1805,
+    "context_peak_tokens": 3386,
+    "result_bytes": 2398,
+    "cost_usd": 0.018286,
+    "wall_ms": 17690,
+    "model_ms": 16322,
+    "tools_ms": 824
+  },
+  "score": {
+    "expected_count": 9,
+    "submitted_count": 9,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "grouping_exact": true,
+    "false_positives": [],
+    "false_negatives": [],
+    "errors_by_trap": {}
+  }
+}

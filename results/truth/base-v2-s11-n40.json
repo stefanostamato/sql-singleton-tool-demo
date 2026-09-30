@@ -1,0 +1,55 @@
+{
+  "n_matters": 40,
+  "seed": 11,
+  "today": "2026-09-15",
+  "variant": "base",
+  "profile": "v2",
+  "at_risk": [
+    {
+      "attorney": "Dana Whitfield",
+      "matters": [
+        "HV-2026-0009"
+      ]
+    },
+    {
+      "attorney": "Elena Kowalczyk",
+      "matters": [
+        "HV-2026-0019"
+      ]
+    },
+    {
+      "attorney": "James Thornbury",
+      "matters": [
+        "HV-2026-0008",
+        "HV-2026-0011",
+        "HV-2026-0016",
+        "HV-2026-0035"
+      ]
+    },
+    {
+      "attorney": "Marcus Oyelaran",
+      "matters": [
+        "HV-2026-0017",
+        "HV-2026-0029"
+      ]
+    },
+    {
+      "attorney": "Priya Raman",
+      "matters": [
+        "HV-2026-0024"
+      ]
+    }
+  ],
+  "traps": {
+    "deadline_just_outside_window": 3,
+    "opposing_counsel_email_only": 2,
+    "non_billable_time_only": 2,
+    "client_email_just_outside_window": 2,
+    "closed_with_deadline": 1,
+    "non_litigation_with_deadline": 1,
+    "boundary_deadline_today": 1,
+    "boundary_deadline_last_day": 1,
+    "boundary_email_last_day": 1,
+    "boundary_billable_first_day": 1
+  }
+}

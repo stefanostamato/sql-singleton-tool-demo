@@ -1,0 +1,40 @@
+{
+  "n_matters": 20,
+  "seed": 7,
+  "today": "2026-09-15",
+  "at_risk": [
+    {
+      "attorney": "Elena Kowalczyk",
+      "matters": [
+        "HV-2026-0016"
+      ]
+    },
+    {
+      "attorney": "James Thornbury",
+      "matters": [
+        "HV-2026-0003",
+        "HV-2026-0018"
+      ]
+    },
+    {
+      "attorney": "Marcus Oyelaran",
+      "matters": [
+        "HV-2026-0006"
+      ]
+    },
+    {
+      "attorney": "Tomás Ibarra",
+      "matters": [
+        "HV-2026-0001"
+      ]
+    }
+  ],
+  "traps": {
+    "deadline_just_outside_window": 1,
+    "opposing_counsel_email_only": 1,
+    "non_billable_time_only": 1,
+    "client_email_just_outside_window": 1,
+    "closed_with_deadline": 1,
+    "non_litigation_with_deadline": 1
+  }
+}

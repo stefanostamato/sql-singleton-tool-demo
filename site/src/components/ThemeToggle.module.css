@@ -1,0 +1,33 @@
+.toggle {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  box-shadow: inset 0 0 0 1px var(--hair-strong);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.target {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+.target:hover {
+  color: var(--ink);
+}
+.target:active {
+  background: var(--hair);
+}
+.target[aria-pressed="true"] {
+  background: var(--bg-subtle);
+  color: var(--ink);
+}
