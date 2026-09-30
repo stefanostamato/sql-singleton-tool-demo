@@ -96,10 +96,27 @@ h3 {
   display: flex;
   align-items: center;
   gap: 18px;
-  overflow-x: auto;
   padding-top: 12px;
   padding-bottom: 12px;
   font-size: 0.9rem;
+}
+.topnav .links {
+  display: flex;
+  gap: 18px;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+.topnav .links::-webkit-scrollbar {
+  display: none;
+}
+@media (max-width: 833px) {
+  .topnav .links {
+    -webkit-mask-image: linear-gradient(to right, black calc(100% - 32px), transparent);
+    mask-image: linear-gradient(to right, black calc(100% - 32px), transparent);
+  }
 }
 .topnav a {
   color: var(--ink-2);

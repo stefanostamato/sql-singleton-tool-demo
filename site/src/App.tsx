@@ -22,12 +22,14 @@ export default function App() {
     <>
       <nav className="topnav" aria-label="Sections">
         <div className="wrap">
-          <a href="#top">Top</a>
-          <a href="#pipeline">Pipeline</a>
-          <a href="#replay">Replay</a>
-          <a href="#scaling">Scaling</a>
-          <a href="#accuracy">Accuracy</a>
-          <a href="#caveats">Caveats</a>
+          <div className="links">
+            <a href="#top">Top</a>
+            <a href="#pipeline">Pipeline</a>
+            <a href="#replay">Replay</a>
+            <a href="#scaling">Scaling</a>
+            <a href="#accuracy">Accuracy</a>
+            <a href="#caveats">Caveats</a>
+          </div>
           <ThemeToggle />
         </div>
       </nav>
